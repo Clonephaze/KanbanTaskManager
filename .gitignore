@@ -17,3 +17,6 @@
 
 # Don't upload the challenge docs and figma
 /ChallengeDocs
+/.nuxt
+/.github/instructions
+/node_modules

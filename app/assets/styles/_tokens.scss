@@ -1,0 +1,93 @@
+// =============================================================================
+// DESIGN TOKENS
+// All color, shadow, radius tokens from the Figma design system.
+// Light theme on :root — dark theme overrides on [data-theme="dark"].
+// NEVER hardcode these values outside this file.
+// Reference: ChallengeDocs/DesignGoals/ + kanban-task-management-web-app.fig
+// =============================================================================
+
+:root {
+  // ---------------------------------------------------------------------------
+  // Brand (identical in both themes)
+  // ---------------------------------------------------------------------------
+  --color-primary:        #635FC7;
+  --color-primary-hover:  #A8A4FF;
+  --color-danger:         #EA5555;
+  --color-danger-hover:   #FF9898;
+
+  // ---------------------------------------------------------------------------
+  // Surfaces — light theme
+  // ---------------------------------------------------------------------------
+  --color-bg:             #F4F7FD;  // Page background
+  --color-surface:        #FFFFFF;  // Cards, sidebar, modals
+  --color-surface-alt:    #F4F7FD;  // Input / textarea fill
+
+  // ---------------------------------------------------------------------------
+  // Text — light theme
+  // ---------------------------------------------------------------------------
+  --color-text-primary:   #000112;
+  --color-text-secondary: #828FA3;  // Subtask counts, labels, placeholder
+
+  // ---------------------------------------------------------------------------
+  // Lines — light theme
+  // ---------------------------------------------------------------------------
+  --color-border:         #E4EBFA;
+
+  // ---------------------------------------------------------------------------
+  // Interactive element states
+  // ---------------------------------------------------------------------------
+  --color-input-border-idle:  rgba(130, 143, 163, 0.25);
+  --color-checkbox-hover-bg:  rgba(99, 95, 199, 0.25);
+
+  // ---------------------------------------------------------------------------
+  // Secondary button surface
+  // ---------------------------------------------------------------------------
+  --color-btn-secondary-bg:   #E4EBFA;  // Light theme secondary button bg
+
+  // ---------------------------------------------------------------------------
+  // Shadow
+  // ---------------------------------------------------------------------------
+  --shadow-card:          0px 4px 6px rgba(54, 78, 126, 0.1);
+
+  // ---------------------------------------------------------------------------
+  // Border Radii
+  // ---------------------------------------------------------------------------
+  --radius-card:    8px;   // Task cards
+  --radius-pill:    100px; // All buttons
+  --radius-modal:   6px;   // Modal dialogs (verify in Figma)
+  --radius-input:   4px;   // Inputs, textareas, dropdowns (verify in Figma)
+}
+
+// =============================================================================
+// DARK THEME OVERRIDES
+// Only override tokens that change between themes.
+// Brand, danger, and interactive state tokens stay the same.
+// =============================================================================
+
+[data-theme="dark"] {
+  // Surfaces
+  --color-bg:             #20212C;
+  --color-surface:        #2B2C37;
+  --color-surface-alt:    #20212C;
+
+  // Text
+  --color-text-primary:   #FFFFFF;
+  // --color-text-secondary stays #828FA3 — same in both themes
+
+  // Lines
+  --color-border:         #3E3F4E;
+
+  // Secondary button surface
+  --color-btn-secondary-bg: rgba(255, 255, 255, 0.1); // White at 10% on dark
+
+  // Shadow (dark surfaces are differentiated by bg color, not shadow)
+  --shadow-card:          none;
+}
+
+// =============================================================================
+// COLUMN DOT COLORS
+// Assigned cyclically by column index — never hardcoded per column name.
+// Usage in SCSS: nth($column-colors, $index)
+// =============================================================================
+
+$column-colors: #49C4E5, #8471F2, #67E2AE;
