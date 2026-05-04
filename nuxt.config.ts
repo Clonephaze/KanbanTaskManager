@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     baseURL: process.env.NUXT_APP_BASE_URL ?? '/',
     head: {
       link: [
-        { rel: 'icon', href: '/favicon.ico' },
+        { rel: 'icon', href: 'KanbanTaskManager/favicon.ico' },
       ],
     },
   },
