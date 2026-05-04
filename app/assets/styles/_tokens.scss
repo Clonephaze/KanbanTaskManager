@@ -50,6 +50,25 @@
   --shadow-card:          0px 4px 6px rgba(54, 78, 126, 0.1);
 
   // ---------------------------------------------------------------------------
+  // Priority badge colors
+  // ---------------------------------------------------------------------------
+  --color-priority-low:         #67E2AE;
+  --color-priority-low-bg:      rgba(103, 226, 174, 0.15);
+  --color-priority-medium:      #F0A030;
+  --color-priority-medium-bg:   rgba(240, 160, 48, 0.15);
+  --color-priority-high:        #EA5555;
+  --color-priority-high-bg:     rgba(234, 85, 85, 0.15);
+  --color-priority-urgent:      #FF2D55;
+  --color-priority-urgent-bg:   rgba(255, 45, 85, 0.15);
+
+  // ---------------------------------------------------------------------------
+  // Due date colors
+  // ---------------------------------------------------------------------------
+  --color-due-ok:       #828FA3;
+  --color-due-soon:     #F0A030;   // within 2 days
+  --color-due-overdue:  #EA5555;   // past due
+
+  // ---------------------------------------------------------------------------
   // Border Radii
   // ---------------------------------------------------------------------------
   --radius-card:    8px;   // Task cards
@@ -77,8 +96,8 @@
   // Lines
   --color-border:         #3E3F4E;
 
-  // Secondary button surface
-  --color-btn-secondary-bg: rgba(255, 255, 255, 0.1); // White at 10% on dark
+  // Secondary button surface — white bg, purple text (matches Figma dark modal)
+  --color-btn-secondary-bg: #FFFFFF;
 
   // Shadow (dark surfaces are differentiated by bg color, not shadow)
   --shadow-card:          none;

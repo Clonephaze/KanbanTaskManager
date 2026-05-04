@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Board, Column, Task, Subtask } from '~/types'
-import seedData from '~/../../data.json'
+import seedData from '~/data/data.json'
 
 const STORAGE_KEY = 'kanban-boards'
 
@@ -55,21 +55,23 @@ export const useBoardStore = defineStore('board', () => {
     persist()
   }
 
-  function addBoard(name: string, columnNames: string[]) {
+  function addBoard(name: string, columnNames: string[], accentColor?: string) {
     const newBoard: Board = {
       name,
       columns: columnNames.filter(n => n.trim()).map(n => ({ name: n, tasks: [] })),
+      accentColor,
     }
     boards.value.push(newBoard)
     activeBoardIndex.value = boards.value.length - 1
     persist()
   }
 
-  function updateBoard(name: string, columnNames: string[]) {
+  function updateBoard(name: string, columnNames: string[], accentColor?: string) {
     const board = activeBoard.value
     if (!board) return
 
     board.name = name
+    if (accentColor !== undefined) board.accentColor = accentColor
 
     // Preserve existing tasks when column names match; drop removed columns
     const updatedColumns: Column[] = columnNames
@@ -142,7 +144,8 @@ export const useBoardStore = defineStore('board', () => {
     const idx = src.tasks.findIndex(t => t.title === taskTitle)
     if (idx === -1) return
 
-    const [task] = src.tasks.splice(idx, 1)
+    const task = src.tasks.splice(idx, 1)[0]
+    if (!task) return
     task.status = toColumn
     dest.tasks.push(task)
     persist()

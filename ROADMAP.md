@@ -11,21 +11,21 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: a running Nuxt 3 app with all tooling configured and zero placeholder content.
 
-- [ ] `npx nuxi init` in project root (or manual scaffold), configure `nuxt.config.ts`
+- [x] `npx nuxi init` in project root (or manual scaffold), configure `nuxt.config.ts`
   - `ssr: true` — shell (header, sidebar, layout) renders on server; board/task data is client-only via `<ClientOnly>` or `onMounted` guards
   - Register `@pinia/nuxt` and `@vueuse/nuxt` modules
   - Point global CSS to `assets/styles/main.scss`
   - Configure path aliases (`~/`, `@/`)
-- [ ] Install dependencies: `pinia`, `@pinia/nuxt`, `@vueuse/nuxt`, `vue-draggable-plus`
-- [ ] Create `tsconfig.json` with `strict: true`
-- [ ] Create SCSS partial structure under `assets/styles/`:
+- [x] Install dependencies: `pinia`, `@pinia/nuxt`, `@vueuse/nuxt`, `vue-draggable-plus`
+- [x] Create `tsconfig.json` with `strict: true`
+- [x] Create SCSS partial structure under `assets/styles/`:
   - `_reset.scss` — minimal reset
   - `_tokens.scss` — all CSS custom property tokens (colors, radii, shadows)
   - `_typography.scss` — Google Font import + `@mixin type($variant)`
   - `_mixins.scss` — flex helpers, focus-ring, visually-hidden
   - `main.scss` — `@use` all partials, base `body` styles
-- [ ] Create `types/index.ts` — `Board`, `Column`, `Task`, `Subtask` interfaces
-- [ ] Verify dev server boots with `npm run dev`
+- [x] Create `types/index.ts` — `Board`, `Column`, `Task`, `Subtask` interfaces
+- [x] Verify dev server boots with `npm run dev`
 
 ---
 
@@ -33,21 +33,21 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: every color, font, radius, and shadow from the Figma design system is a named token. No magic numbers anywhere.
 
-- [ ] Fill `_tokens.scss`:
+- [x] Fill `_tokens.scss`:
   - All palette values (see `.github/instructions/design-tokens.instructions.md`)
   - `:root` (light theme) + `[data-theme="dark"]` overrides
   - Radius tokens (`--radius-btn-l`, `--radius-card`, `--radius-input`, `--radius-modal`)
   - Shadow token (`--shadow-card`) — verify exact value in Figma
-- [ ] Fill `_typography.scss`:
+- [x] Fill `_typography.scss`:
   - Import **Plus Jakarta Sans** (weights 500, 700) from Google Fonts via `@import`
   - Implement `@mixin type($variant)` for all 6 scale steps
-- [ ] Fill `_mixins.scss`:
+- [x] Fill `_mixins.scss`:
   - `flex-center`, `flex-between`
   - `focus-ring` (uses `--color-primary`)
   - `visually-hidden`
   - `scrollbar-hidden` (for column task lists)
-- [ ] Apply `data-theme` attribute via `app.vue` → reads from `useUiStore`
-- [ ] Smoke-test both themes in browser
+- [x] Apply `data-theme` attribute via `app.vue` → reads from `useUiStore`
+- [x] Smoke-test both themes in browser
 
 ---
 
@@ -55,7 +55,7 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: all state logic is in stores before any UI exists. Stores are testable in isolation.
 
-- [ ] `stores/board.ts` — `useBoardStore`
+- [x] `stores/board.ts` — `useBoardStore`
   - State: `boards: Board[]`, `activeBoardIndex: number`
   - Computed: `activeBoard`
   - Actions: `addBoard`, `updateBoard`, `deleteBoard`
@@ -64,12 +64,12 @@ Architecture → [AGENTS.md](AGENTS.md)
   - Actions: `toggleSubtask`
   - Init: seed from `data.json` if no localStorage key exists
   - Persist: `watch` the entire state and write to localStorage on every change
-- [ ] `stores/ui.ts` — `useUiStore`
+- [x] `stores/ui.ts` — `useUiStore`
   - State: `theme: 'light' | 'dark'`, `sidebarOpen: boolean`
   - State: `activeModal: null | { type, payload? }`
   - Actions: `toggleTheme`, `toggleSidebar`, `openModal`, `closeModal`
   - Persist: `theme` to localStorage only
-- [ ] Manual smoke-test in Vue DevTools: seed data loads, mutations update state, localStorage reflects changes
+- [x] Manual smoke-test in Vue DevTools: seed data loads, mutations update state, localStorage reflects changes
 
 ---
 
@@ -77,17 +77,17 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: every form element used anywhere in the app is built once here. No inline duplication ever.
 
-- [ ] **`BaseButton.vue`** — props: `variant` (`primary-l` | `primary-s` | `secondary` | `destructive`), `disabled`
+- [x] **`BaseButton.vue`** — props: `variant` (`primary-l` | `primary-s` | `secondary` | `destructive`), `disabled`
   - All four variants + hover states from design system
   - Disabled state: 25% opacity, `cursor: not-allowed`
-- [ ] **`BaseInput.vue`** — props: `modelValue`, `placeholder`, `error` (string)
+- [x] **`BaseInput.vue`** — props: `modelValue`, `placeholder`, `error` (string)
   - Idle, active/focus, error states
   - Error message renders right-aligned below input in `--color-danger`
-- [ ] **`BaseTextarea.vue`** — same prop contract as `BaseInput`, auto-resize or fixed height
-- [ ] **`BaseDropdown.vue`** — props: `modelValue`, `options: string[]`
+- [x] **`BaseTextarea.vue`** — same prop contract as `BaseInput`, auto-resize or fixed height
+- [x] **`BaseDropdown.vue`** — props: `modelValue`, `options: string[]`
   - Idle, open states with chevron icon flip
   - Emits `update:modelValue`
-- [ ] **`BaseCheckbox.vue`** — props: `modelValue` (boolean), `label`
+- [x] **`BaseCheckbox.vue`** — props: `modelValue` (boolean), `label`
   - Idle, hovered, completed states (see design system)
   - Uses `icon-check.svg`
 
@@ -97,18 +97,18 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: the full-page layout is visible with correct proportions, even if content is empty.
 
-- [ ] `app.vue` — binds `data-theme` attribute to `useUiStore.theme`, renders `<NuxtPage />`
-- [ ] `pages/index.vue` — two-column layout: sidebar + main board area
+- [x] `app.vue` — binds `data-theme` attribute to `useUiStore.theme`, renders `<NuxtPage />`
+- [x] `pages/index.vue` — two-column layout: sidebar + main board area
   - Mobile: sidebar hidden by default (slide-in overlay)
   - Tablet/Desktop: sidebar fixed on left
-- [ ] **`components/board/BoardSidebar.vue`**
+- [x] **`components/board/BoardSidebar.vue`**
   - Logo (`logo-light.svg` / `logo-dark.svg` by theme)
   - Board list — maps `boards` from store, highlights active
   - "Create New Board" button → opens `addBoard` modal
   - Theme toggle (sun/moon icons) → calls `toggleTheme`
   - "Hide Sidebar" button → calls `toggleSidebar`
-- [ ] **"Show Sidebar" button** — visible in bottom-left when sidebar is hidden (desktop only)
-- [ ] **App header** (inside `pages/index.vue` or its own component)
+- [x] **"Show Sidebar" button** — visible in bottom-left when sidebar is hidden (desktop only)
+- [x] **App header** (inside `pages/index.vue` or its own component)
   - Active board name (Heading XL)
   - "Add New Task" button (disabled when `activeBoard.columns.length === 0`)
   - Vertical ellipsis menu → Edit Board / Delete Board actions
@@ -119,19 +119,19 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: the kanban board is fully readable with real seed data.
 
-- [ ] **`components/board/BoardColumn.vue`**
+- [x] **`components/board/BoardColumn.vue`**
   - Column header: colored dot + column name + task count (Heading S)
   - Task list container (scrollable, hidden scrollbar)
   - Renders `TaskCard` for each task
   - "Add New Column" ghost column at the end → opens `editBoard` modal
-- [ ] **`components/board/BoardColumnDot.vue`** — colored circle, color assigned by column index from `$column-colors` SCSS list
-- [ ] **`components/task/TaskCard.vue`**
+- [x] **`components/board/BoardColumnDot.vue`** — colored circle, color assigned by column index from `$column-colors` SCSS list
+- [x] **`components/task/TaskCard.vue`**
   - Task title (Heading M)
   - Subtask progress chip: "X of Y subtasks" (Body M, `--color-text-secondary`)
   - Click → opens `viewTask` modal with task payload
   - Hover state: title changes to `--color-primary`
-- [ ] Empty board state: prompt to "Create New Column" when `activeBoard.columns` is empty
-- [ ] Empty column state: no special UI needed (just an empty drop zone)
+- [x] Empty board state: prompt to "Create New Column" when `activeBoard.columns` is empty
+- [x] Empty column state: no special UI needed (just an empty drop zone)
 
 ---
 
@@ -139,29 +139,29 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: all CRUD operations work end-to-end. Every modal uses `ModalWrapper` and `ui/` base components.
 
-- [ ] **`components/modal/ModalWrapper.vue`**
+- [x] **`components/modal/ModalWrapper.vue`**
   - Renders slot content in a centered card over a dark backdrop
   - Click outside → `closeModal`
   - Escape key → `closeModal`
   - Focus trap (VueUse `useFocusTrap`)
   - Entry/exit CSS transition
-- [ ] **`components/task/TaskDetail.vue`** (viewTask modal)
+- [x] **`components/task/TaskDetail.vue`** (viewTask modal)
   - Task title (Heading L), description (Body L)
   - Subtask list using `BaseCheckbox` → calls `toggleSubtask`
   - Status dropdown using `BaseDropdown` → calls `moveTask` on change
   - Ellipsis menu → Edit Task / Delete Task
-- [ ] **`components/modal/TaskFormModal.vue`** (addTask / editTask)
+- [x] **`components/modal/TaskFormModal.vue`** (addTask / editTask)
   - Title input (`BaseInput`), description (`BaseTextarea`)
   - Dynamic subtask list: `BaseInput` per subtask + remove button + "Add New Subtask"
   - Status dropdown (`BaseDropdown`)
   - Form validation: title required, subtask titles required
   - Submit → `addTask` or `updateTask`
-- [ ] **`components/modal/BoardFormModal.vue`** (addBoard / editBoard)
+- [x] **`components/modal/BoardFormModal.vue`** (addBoard / editBoard)
   - Board name input (`BaseInput`)
   - Dynamic column list: `BaseInput` per column + remove button + "Add New Column"
   - Form validation: board name required, column names required
   - Submit → `addBoard` or `updateBoard`
-- [ ] **`components/modal/DeleteConfirmModal.vue`**
+- [x] **`components/modal/DeleteConfirmModal.vue`**
   - Dynamic title/body copy based on `payload.type` ('board' | 'task')
   - "Delete" (`BaseButton` destructive) + "Cancel" (`BaseButton` secondary)
   - Confirm → `deleteBoard` or `deleteTask`, then `closeModal`
@@ -172,12 +172,12 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: tasks can be reordered within a column and moved between columns by dragging.
 
-- [ ] Integrate `vue-draggable-plus` into `BoardColumn`
+- [x] Integrate `vue-draggable-plus` into `BoardColumn`
   - Wrap task list in `<VueDraggable>` with `group="tasks"` for cross-column support
   - On `onUpdate` (reorder within column): update task order in store
   - On `onAdd` (moved to new column): call `moveTask`, update `task.status` to new column name
-- [ ] Visual feedback: dragging card gets a slight shadow/opacity change (`.task-card--dragging`)
-- [ ] Drag handle: entire card is the drag handle (no separate grip icon)
+- [x] Visual feedback: dragging card gets a slight shadow/opacity change (`.task-card--dragging`)
+- [x] Drag handle: entire card is the drag handle (no separate grip icon)
 
 ---
 
@@ -185,19 +185,19 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: pixel-accurate at all three breakpoints, every hover/focus state implemented.
 
-- [ ] **Mobile (≤ 767px)**
+- [x] **Mobile (≤ 767px)**
   - Sidebar hidden; tap logo area opens sidebar as overlay (semi-transparent backdrop)
   - Mobile header: `logo-mobile.svg`, board name with chevron-down (tapping opens board picker dropdown), `icon-add-task-mobile.svg` button
   - Board columns scroll horizontally
-- [ ] **Tablet (768–1023px)**
+- [x] **Tablet (768-1023px)**
   - Sidebar shown (fixed), narrower than desktop
   - Confirm layout matches Figma tablet spec
-- [ ] **Desktop (≥ 1024px)**
+- [x] **Desktop (≥ 1024px)**
   - Full sidebar, full header
-- [ ] Hover states: all buttons, task cards, sidebar board items, checkboxes, inputs
-- [ ] Focus rings: all interactive elements have visible focus indicator (uses `focus-ring` mixin)
-- [ ] Scrollbars: column task lists scroll vertically without showing scrollbar (`scrollbar-hidden` mixin)
-- [ ] Transitions: theme toggle (color transition on body), modal enter/leave, sidebar show/hide
+- [x] Hover states: all buttons, task cards, sidebar board items, checkboxes, inputs
+- [x] Focus rings: all interactive elements have visible focus indicator (uses `focus-ring` mixin)
+- [x] Scrollbars: column task lists scroll vertically without showing scrollbar (`scrollbar-hidden` mixin)
+- [x] Transitions: theme toggle (color transition on body), modal enter/leave, sidebar show/hide
 
 ---
 
@@ -205,23 +205,23 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 > Goal: all user stories from the spec pass, no regressions.
 
-- [ ] Walk through every bullet in [ChallengeDocs/ChallengeInstructions.md](ChallengeDocs/ChallengeInstructions.md) "Expected Behaviour"
-- [ ] Refresh browser — data persists, theme persists, sidebar state resets
-- [ ] Create a new board, add columns, add tasks with subtasks — full happy path
-- [ ] Edit board name + columns (add, rename, remove)
-- [ ] Delete board (confirm prompt, then board is gone)
-- [ ] Edit task: change title, description, subtasks, status → task moves to new column
-- [ ] Delete task (confirm prompt)
-- [ ] Toggle all subtasks on a task → count updates live
-- [ ] Change task status via dropdown in `TaskDetail` → task moves to new column
-- [ ] Drag task between columns → status updates to match destination column
-- [ ] Drag to reorder within a column → order persists after refresh
-- [ ] "Add New Task" disabled when board has no columns
-- [ ] "Add New Column" on empty board → opens edit board modal
-- [ ] Light ↔ dark toggle, all components look correct in both themes
-- [ ] All form validations fire correctly (empty title, empty column name, etc.)
-- [ ] Keyboard navigation: modals trap focus, Escape closes, Tab cycles correctly
-- [ ] Cross-browser smoke test (Chrome, Firefox, Safari/Edge)
+- [x] Walk through every bullet in [ChallengeDocs/ChallengeInstructions.md](ChallengeDocs/ChallengeInstructions.md) "Expected Behaviour"
+- [x] Refresh browser — data persists, theme persists, sidebar state resets
+- [x] Create a new board, add columns, add tasks with subtasks — full happy path
+- [x] Edit board name + columns (add, rename, remove)
+- [x] Delete board (confirm prompt, then board is gone)
+- [x] Edit task: change title, description, subtasks, status → task moves to new column
+- [x] Delete task (confirm prompt)
+- [x] Toggle all subtasks on a task → count updates live
+- [x] Change task status via dropdown in `TaskDetail` → task moves to new column
+- [x] Drag task between columns → status updates to match destination column
+- [x] Drag to reorder within a column → order persists after refresh
+- [x] "Add New Task" disabled when board has no columns
+- [x] "Add New Column" on empty board → opens edit board modal
+- [x] Light ↔ dark toggle, all components look correct in both themes
+- [x] All form validations fire correctly (empty title, empty column name, etc.)
+- [x] Keyboard navigation: modals trap focus, Escape closes, Tab cycles correctly
+- [x] Cross-browser smoke test (Chrome, Firefox, Safari/Edge)
 
 ---
 

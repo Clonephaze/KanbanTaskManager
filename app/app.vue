@@ -15,6 +15,7 @@ const boardStore = useBoardStore()
 // Initialise client-side only (localStorage, data-theme attribute)
 onMounted(() => {
   uiStore.initTheme()
+  uiStore.initLayout()
   boardStore.init()
 })
 </script>

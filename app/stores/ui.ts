@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { ActiveModal } from '~/types'
+import type { ActiveModal, Priority } from '~/types'
 
 const THEME_KEY = 'kanban-theme'
 
@@ -10,6 +10,9 @@ export const useUiStore = defineStore('ui', () => {
   const theme = ref<'light' | 'dark'>('light')
   const sidebarOpen = ref(true)
   const activeModal = ref<ActiveModal | null>(null)
+  const mobileBoardPickerOpen = ref(false)
+  const searchQuery = ref('')
+  const filterPriority = ref<Priority | ''>('')
 
   // ---------------------------------------------------------------------------
   // Init — restore persisted theme client-side only
@@ -39,6 +42,20 @@ export const useUiStore = defineStore('ui', () => {
     sidebarOpen.value = !sidebarOpen.value
   }
 
+  function initLayout() {
+    if (!import.meta.client) return
+    // Start sidebar closed on mobile, open on tablet+
+    sidebarOpen.value = window.innerWidth >= 768
+  }
+
+  function toggleMobileBoardPicker() {
+    mobileBoardPickerOpen.value = !mobileBoardPickerOpen.value
+  }
+
+  function closeMobileBoardPicker() {
+    mobileBoardPickerOpen.value = false
+  }
+
   function openModal(modal: ActiveModal) {
     activeModal.value = modal
   }
@@ -52,10 +69,16 @@ export const useUiStore = defineStore('ui', () => {
     theme,
     sidebarOpen,
     activeModal,
+    mobileBoardPickerOpen,
+    searchQuery,
+    filterPriority,
     // Actions
     initTheme,
+    initLayout,
     toggleTheme,
     toggleSidebar,
+    toggleMobileBoardPicker,
+    closeMobileBoardPicker,
     openModal,
     closeModal,
   }

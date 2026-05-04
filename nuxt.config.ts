@@ -8,6 +8,16 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
   ],
 
+  // Register ui/ components without the 'Ui' path prefix so <BaseButton>,
+  // <BaseInput>, etc. work. The generic '~/components' scan still handles
+  // board/, modal/, task/ with their correct prefixed names.
+  components: {
+    dirs: [
+      { path: '~/components/ui', prefix: '' },
+      '~/components',
+    ],
+  },
+
   css: ['~/assets/styles/main.scss'],
 
   typescript: {
