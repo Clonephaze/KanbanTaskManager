@@ -43,13 +43,13 @@ import type { Column, Task } from '~/types'
 import { useBoardStore } from '~/stores/board'
 import { useUiStore } from '~/stores/ui'
 
-// Column dot colors — use board accentColor if available, else cycle fallback palette
+// Column dot colors - use board accentColor if available, else cycle fallback palette
 const COLUMN_COLORS = ['#49C4E5', '#8471F2', '#67E2AE']
 
 // Generate variants of the accent color by cycling hue offset
 function accentVariant(base: string, index: number): string {
   if (index === 0) return base
-  // Simple cycling — shift via opacity layers using CSS; just return the base for dot
+  // Simple cycling - shift via opacity layers using CSS; just return the base for dot
   // For multi-column variety: offset index-1 uses a lighter tint approximation
   const tints = [base, base + 'BB', base + '88']
   return tints[index % tints.length] ?? base
@@ -77,7 +77,7 @@ watch(() => props.column.tasks, (newTasks) => {
   tasks.value = [...newTasks]
 }, { deep: true })
 
-// Filtered view — search + priority filter
+// Filtered view - search + priority filter
 const visibleTasks = computed(() => {
   const q = uiStore.searchQuery.trim().toLowerCase()
   const p = uiStore.filterPriority
@@ -95,7 +95,7 @@ const isOverWip = computed(() => wipLimit.value > 0 && tasks.value.length > wipL
 function onDragEnd() {
   // After any drag (reorder or cross-column move), sync back to store.
   // vue-draggable-plus mutates the tasks array and updates status via the
-  // group binding — we reflect that back to the store here.
+  // group binding - we reflect that back to the store here.
   const col = boardStore.activeBoard?.columns[props.columnIndex]
   if (!col) return
   col.tasks = tasks.value

@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  // GitHub Pages serves from /repo-name/ — pick up via env var set in the workflow.
+  // GitHub Pages serves from /repo-name/ - pick up via env var set in the workflow.
   // Falls back to '/' for local dev.
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? '/',

@@ -3,11 +3,11 @@ import { useBoardStore } from '~/stores/board'
 
 /**
  * Global keyboard shortcuts:
- *   N         — New task (if board has columns)
- *   B         — New board
- *   /         — Focus search bar
- *   Esc       — Handled by ModalWrapper; also clears search
- *   E         — Edit current board
+ *   N         - New task (if board has columns)
+ *   B         - New board
+ *   /         - Focus search bar
+ *   Esc       - Handled by ModalWrapper; also clears search
+ *   E         - Edit current board
  */
 export function useKeyboardShortcuts() {
   const uiStore = useUiStore()

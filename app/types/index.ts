@@ -1,5 +1,5 @@
 // Single source of truth for all data shapes.
-// These mirror data.json — import from here, never redefine inline.
+// These mirror data.json - import from here, never redefine inline.
 
 export interface Subtask {
   title: string
@@ -31,7 +31,7 @@ export interface Column {
 export interface Board {
   name: string
   columns: Column[]
-  accentColor?: string  // hex — drives column dots + active board highlight
+  accentColor?: string  // hex - drives column dots + active board highlight
 }
 
 // Modal types

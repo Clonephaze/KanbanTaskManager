@@ -1,7 +1,7 @@
 // =============================================================================
 // DESIGN TOKENS
 // All color, shadow, radius tokens from the Figma design system.
-// Light theme on :root — dark theme overrides on [data-theme="dark"].
+// Light theme on :root - dark theme overrides on [data-theme="dark"].
 // NEVER hardcode these values outside this file.
 // Reference: ChallengeDocs/DesignGoals/ + kanban-task-management-web-app.fig
 // =============================================================================
@@ -16,20 +16,20 @@
   --color-danger-hover:   #FF9898;
 
   // ---------------------------------------------------------------------------
-  // Surfaces — light theme
+  // Surfaces - light theme
   // ---------------------------------------------------------------------------
   --color-bg:             #F4F7FD;  // Page background
   --color-surface:        #FFFFFF;  // Cards, sidebar, modals
   --color-surface-alt:    #F4F7FD;  // Input / textarea fill
 
   // ---------------------------------------------------------------------------
-  // Text — light theme
+  // Text - light theme
   // ---------------------------------------------------------------------------
   --color-text-primary:   #000112;
   --color-text-secondary: #828FA3;  // Subtask counts, labels, placeholder
 
   // ---------------------------------------------------------------------------
-  // Lines — light theme
+  // Lines - light theme
   // ---------------------------------------------------------------------------
   --color-border:         #E4EBFA;
 
@@ -91,12 +91,12 @@
 
   // Text
   --color-text-primary:   #FFFFFF;
-  // --color-text-secondary stays #828FA3 — same in both themes
+  // --color-text-secondary stays #828FA3 - same in both themes
 
   // Lines
   --color-border:         #3E3F4E;
 
-  // Secondary button surface — white bg, purple text (matches Figma dark modal)
+  // Secondary button surface - white bg, purple text (matches Figma dark modal)
   --color-btn-secondary-bg: #FFFFFF;
 
   // Shadow (dark surfaces are differentiated by bg color, not shadow)
@@ -105,7 +105,7 @@
 
 // =============================================================================
 // COLUMN DOT COLORS
-// Assigned cyclically by column index — never hardcoded per column name.
+// Assigned cyclically by column index - never hardcoded per column name.
 // Usage in SCSS: nth($column-colors, $index)
 // =============================================================================
 

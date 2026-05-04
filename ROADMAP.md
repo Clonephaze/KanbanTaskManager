@@ -1,4 +1,4 @@
-# Kanban Task Manager — Development Roadmap
+# Kanban Task Manager - Development Roadmap
 
 Stack: **Nuxt 3 · TypeScript · SCSS · Pinia · VueUse · vue-draggable-plus**  
 Full spec → [ChallengeDocs/ChallengeInstructions.md](ChallengeDocs/ChallengeInstructions.md)  
@@ -7,29 +7,29 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 1 — Project Scaffold
+## Phase 1 - Project Scaffold
 
 > Goal: a running Nuxt 3 app with all tooling configured and zero placeholder content.
 
 - [x] `npx nuxi init` in project root (or manual scaffold), configure `nuxt.config.ts`
-  - `ssr: true` — shell (header, sidebar, layout) renders on server; board/task data is client-only via `<ClientOnly>` or `onMounted` guards
+  - `ssr: true` - shell (header, sidebar, layout) renders on server; board/task data is client-only via `<ClientOnly>` or `onMounted` guards
   - Register `@pinia/nuxt` and `@vueuse/nuxt` modules
   - Point global CSS to `assets/styles/main.scss`
   - Configure path aliases (`~/`, `@/`)
 - [x] Install dependencies: `pinia`, `@pinia/nuxt`, `@vueuse/nuxt`, `vue-draggable-plus`
 - [x] Create `tsconfig.json` with `strict: true`
 - [x] Create SCSS partial structure under `assets/styles/`:
-  - `_reset.scss` — minimal reset
-  - `_tokens.scss` — all CSS custom property tokens (colors, radii, shadows)
-  - `_typography.scss` — Google Font import + `@mixin type($variant)`
-  - `_mixins.scss` — flex helpers, focus-ring, visually-hidden
-  - `main.scss` — `@use` all partials, base `body` styles
-- [x] Create `types/index.ts` — `Board`, `Column`, `Task`, `Subtask` interfaces
+  - `_reset.scss` - minimal reset
+  - `_tokens.scss` - all CSS custom property tokens (colors, radii, shadows)
+  - `_typography.scss` - Google Font import + `@mixin type($variant)`
+  - `_mixins.scss` - flex helpers, focus-ring, visually-hidden
+  - `main.scss` - `@use` all partials, base `body` styles
+- [x] Create `types/index.ts` - `Board`, `Column`, `Task`, `Subtask` interfaces
 - [x] Verify dev server boots with `npm run dev`
 
 ---
 
-## Phase 2 — Design Tokens & Typography
+## Phase 2 - Design Tokens & Typography
 
 > Goal: every color, font, radius, and shadow from the Figma design system is a named token. No magic numbers anywhere.
 
@@ -37,7 +37,7 @@ Architecture → [AGENTS.md](AGENTS.md)
   - All palette values (see `.github/instructions/design-tokens.instructions.md`)
   - `:root` (light theme) + `[data-theme="dark"]` overrides
   - Radius tokens (`--radius-btn-l`, `--radius-card`, `--radius-input`, `--radius-modal`)
-  - Shadow token (`--shadow-card`) — verify exact value in Figma
+  - Shadow token (`--shadow-card`) - verify exact value in Figma
 - [x] Fill `_typography.scss`:
   - Import **Plus Jakarta Sans** (weights 500, 700) from Google Fonts via `@import`
   - Implement `@mixin type($variant)` for all 6 scale steps
@@ -51,11 +51,11 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 3 — Pinia Stores
+## Phase 3 - Pinia Stores
 
 > Goal: all state logic is in stores before any UI exists. Stores are testable in isolation.
 
-- [x] `stores/board.ts` — `useBoardStore`
+- [x] `stores/board.ts` - `useBoardStore`
   - State: `boards: Board[]`, `activeBoardIndex: number`
   - Computed: `activeBoard`
   - Actions: `addBoard`, `updateBoard`, `deleteBoard`
@@ -64,7 +64,7 @@ Architecture → [AGENTS.md](AGENTS.md)
   - Actions: `toggleSubtask`
   - Init: seed from `data.json` if no localStorage key exists
   - Persist: `watch` the entire state and write to localStorage on every change
-- [x] `stores/ui.ts` — `useUiStore`
+- [x] `stores/ui.ts` - `useUiStore`
   - State: `theme: 'light' | 'dark'`, `sidebarOpen: boolean`
   - State: `activeModal: null | { type, payload? }`
   - Actions: `toggleTheme`, `toggleSidebar`, `openModal`, `closeModal`
@@ -73,41 +73,41 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 4 — Base UI Components (`components/ui/`)
+## Phase 4 - Base UI Components (`components/ui/`)
 
 > Goal: every form element used anywhere in the app is built once here. No inline duplication ever.
 
-- [x] **`BaseButton.vue`** — props: `variant` (`primary-l` | `primary-s` | `secondary` | `destructive`), `disabled`
+- [x] **`BaseButton.vue`** - props: `variant` (`primary-l` | `primary-s` | `secondary` | `destructive`), `disabled`
   - All four variants + hover states from design system
   - Disabled state: 25% opacity, `cursor: not-allowed`
-- [x] **`BaseInput.vue`** — props: `modelValue`, `placeholder`, `error` (string)
+- [x] **`BaseInput.vue`** - props: `modelValue`, `placeholder`, `error` (string)
   - Idle, active/focus, error states
   - Error message renders right-aligned below input in `--color-danger`
-- [x] **`BaseTextarea.vue`** — same prop contract as `BaseInput`, auto-resize or fixed height
-- [x] **`BaseDropdown.vue`** — props: `modelValue`, `options: string[]`
+- [x] **`BaseTextarea.vue`** - same prop contract as `BaseInput`, auto-resize or fixed height
+- [x] **`BaseDropdown.vue`** - props: `modelValue`, `options: string[]`
   - Idle, open states with chevron icon flip
   - Emits `update:modelValue`
-- [x] **`BaseCheckbox.vue`** — props: `modelValue` (boolean), `label`
+- [x] **`BaseCheckbox.vue`** - props: `modelValue` (boolean), `label`
   - Idle, hovered, completed states (see design system)
   - Uses `icon-check.svg`
 
 ---
 
-## Phase 5 — App Shell & Layout
+## Phase 5 - App Shell & Layout
 
 > Goal: the full-page layout is visible with correct proportions, even if content is empty.
 
-- [x] `app.vue` — binds `data-theme` attribute to `useUiStore.theme`, renders `<NuxtPage />`
-- [x] `pages/index.vue` — two-column layout: sidebar + main board area
+- [x] `app.vue` - binds `data-theme` attribute to `useUiStore.theme`, renders `<NuxtPage />`
+- [x] `pages/index.vue` - two-column layout: sidebar + main board area
   - Mobile: sidebar hidden by default (slide-in overlay)
   - Tablet/Desktop: sidebar fixed on left
 - [x] **`components/board/BoardSidebar.vue`**
   - Logo (`logo-light.svg` / `logo-dark.svg` by theme)
-  - Board list — maps `boards` from store, highlights active
+  - Board list - maps `boards` from store, highlights active
   - "Create New Board" button → opens `addBoard` modal
   - Theme toggle (sun/moon icons) → calls `toggleTheme`
   - "Hide Sidebar" button → calls `toggleSidebar`
-- [x] **"Show Sidebar" button** — visible in bottom-left when sidebar is hidden (desktop only)
+- [x] **"Show Sidebar" button** - visible in bottom-left when sidebar is hidden (desktop only)
 - [x] **App header** (inside `pages/index.vue` or its own component)
   - Active board name (Heading XL)
   - "Add New Task" button (disabled when `activeBoard.columns.length === 0`)
@@ -115,7 +115,7 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 6 — Board & Task Display
+## Phase 6 - Board & Task Display
 
 > Goal: the kanban board is fully readable with real seed data.
 
@@ -124,7 +124,7 @@ Architecture → [AGENTS.md](AGENTS.md)
   - Task list container (scrollable, hidden scrollbar)
   - Renders `TaskCard` for each task
   - "Add New Column" ghost column at the end → opens `editBoard` modal
-- [x] **`components/board/BoardColumnDot.vue`** — colored circle, color assigned by column index from `$column-colors` SCSS list
+- [x] **`components/board/BoardColumnDot.vue`** - colored circle, color assigned by column index from `$column-colors` SCSS list
 - [x] **`components/task/TaskCard.vue`**
   - Task title (Heading M)
   - Subtask progress chip: "X of Y subtasks" (Body M, `--color-text-secondary`)
@@ -135,7 +135,7 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 7 — Modals
+## Phase 7 - Modals
 
 > Goal: all CRUD operations work end-to-end. Every modal uses `ModalWrapper` and `ui/` base components.
 
@@ -168,7 +168,7 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 8 — Drag & Drop
+## Phase 8 - Drag & Drop
 
 > Goal: tasks can be reordered within a column and moved between columns by dragging.
 
@@ -181,7 +181,7 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 9 — Responsiveness & Polish
+## Phase 9 - Responsiveness & Polish
 
 > Goal: pixel-accurate at all three breakpoints, every hover/focus state implemented.
 
@@ -201,13 +201,13 @@ Architecture → [AGENTS.md](AGENTS.md)
 
 ---
 
-## Phase 10 — Final QA
+## Phase 10 - Final QA
 
 > Goal: all user stories from the spec pass, no regressions.
 
 - [x] Walk through every bullet in [ChallengeDocs/ChallengeInstructions.md](ChallengeDocs/ChallengeInstructions.md) "Expected Behaviour"
-- [x] Refresh browser — data persists, theme persists, sidebar state resets
-- [x] Create a new board, add columns, add tasks with subtasks — full happy path
+- [x] Refresh browser - data persists, theme persists, sidebar state resets
+- [x] Create a new board, add columns, add tasks with subtasks - full happy path
 - [x] Edit board name + columns (add, rename, remove)
 - [x] Delete board (confirm prompt, then board is gone)
 - [x] Edit task: change title, description, subtasks, status → task moves to new column

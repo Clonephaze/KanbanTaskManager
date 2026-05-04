@@ -38,7 +38,8 @@ const dueDateClass = computed(() => {
   if (!props.task.dueDate) return ''
   const now = new Date()
   now.setHours(0, 0, 0, 0)
-  const due = new Date(props.task.dueDate)
+  const parts = props.task.dueDate.split('-')
+  const due = new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10))
   const diffDays = Math.ceil((due.getTime() - now.getTime()) / 86_400_000)
   if (diffDays < 0) return 'task-card__due--overdue'
   if (diffDays <= 2) return 'task-card__due--soon'
@@ -47,7 +48,8 @@ const dueDateClass = computed(() => {
 
 const formattedDueDate = computed(() => {
   if (!props.task.dueDate) return ''
-  return new Date(props.task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  const parts = props.task.dueDate.split('-')
+  return new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 })
 
 function openTask() {

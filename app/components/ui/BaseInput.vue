@@ -104,7 +104,7 @@ function onInput(e: Event) {
     pointer-events: none;
   }
 
-  // Error text below input (hidden — inline takes priority per design)
+  // Error text below input (hidden - inline takes priority per design)
   &__error-msg {
     display: none;
   }

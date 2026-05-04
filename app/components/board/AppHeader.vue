@@ -2,11 +2,20 @@
   <header class="app-header">
     <!-- Logo pane: fixed width on tablet+, always visible. Mobile: logo-mobile only -->
     <div class="app-header__logo-pane">
-      <img :src="logoMobile" alt="Kanban" height="26" class="app-header__logo-mobile" />
-      <img :src="uiStore.theme === 'dark' ? logoLight : logoDark" alt="Kanban" height="26" class="app-header__logo-desktop" />
+      <picture>
+        <!-- Mobile: compact mark-only logo -->
+        <source media="(max-width: 767px)" :srcset="logoMobile" />
+        <!-- Tablet+: full wordmark, switches on theme -->
+        <img
+          :src="uiStore.theme === 'dark' ? logoLight : logoDark"
+          alt="Kanban"
+          height="26"
+          class="app-header__logo"
+        />
+      </picture>
     </div>
 
-    <!-- Board name — desktop shows plain text, mobile adds chevron for board picker -->
+    <!-- Board name - desktop shows plain text, mobile adds chevron for board picker -->
     <div
       class="app-header__board-name"
       :class="{ 'app-header__board-name--clickable': isMobile }"
@@ -39,7 +48,7 @@
         + Add New Task
       </BaseButton>
 
-      <!-- Add New Task (mobile — icon only) -->
+      <!-- Add New Task (mobile - icon only) -->
       <button
         class="app-header__add-mobile"
         :disabled="!boardStore.activeBoard?.columns.length"
@@ -147,7 +156,7 @@ const progressPercent = computed(() =>
   totalTasks.value > 0 ? Math.round((completedTasks.value / totalTasks.value) * 100) : 0
 )
 
-// Only treat as mobile when window is narrow — guards board-name click behaviour
+// Only treat as mobile when window is narrow - guards board-name click behaviour
 const isMobile = ref(false)
 onMounted(() => {
   const mq = window.matchMedia('(max-width: 767px)')
@@ -190,7 +199,7 @@ function onDeleteBoard() {
     height: 64px;
   }
 
-  // Fixed-width logo pane — always visible, matches sidebar width exactly
+  // Fixed-width logo pane - always visible, matches sidebar width exactly
   &__logo-pane {
     display: flex;
     align-items: center;
@@ -214,7 +223,7 @@ function onDeleteBoard() {
     display: flex;
     align-items: center;
     gap: 8px;
-    // No longer flex:1 — search bar takes remaining space
+    // No longer flex:1 - search bar takes remaining space
     flex-shrink: 0;
     min-width: 0;
     padding: 0 24px;

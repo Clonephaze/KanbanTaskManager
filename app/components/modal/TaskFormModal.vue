@@ -58,7 +58,7 @@ const columnNames = computed(() => boardStore.activeBoard?.columns.map(c => c.na
 
 const priorityOptions: Priority[] = ['low', 'medium', 'high', 'urgent']
 
-// Form state — pre-populate in edit mode
+// Form state - pre-populate in edit mode
 const formTitle = ref(isEdit.value && payload.value ? payload.value.task.title : '')
 const formDescription = ref(isEdit.value && payload.value ? payload.value.task.description : '')
 const formStatus = ref(

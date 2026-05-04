@@ -15,7 +15,7 @@ export const useUiStore = defineStore('ui', () => {
   const filterPriority = ref<Priority | ''>('')
 
   // ---------------------------------------------------------------------------
-  // Init — restore persisted theme client-side only
+  // Init - restore persisted theme client-side only
   // ---------------------------------------------------------------------------
   function initTheme() {
     if (!import.meta.client) return

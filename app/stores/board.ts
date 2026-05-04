@@ -17,7 +17,7 @@ export const useBoardStore = defineStore('board', () => {
   const activeBoard = computed<Board | undefined>(() => boards.value[activeBoardIndex.value])
 
   // ---------------------------------------------------------------------------
-  // Init — seed from localStorage, fall back to data.json
+  // Init - seed from localStorage, fall back to data.json
   // ---------------------------------------------------------------------------
   function init() {
     if (!import.meta.client) return
@@ -29,7 +29,7 @@ export const useBoardStore = defineStore('board', () => {
         activeBoardIndex.value = parsed.activeBoardIndex ?? 0
         return
       } catch {
-        // Corrupted data — fall through to seed
+        // Corrupted data - fall through to seed
       }
     }
     boards.value = (seedData as { boards: Board[] }).boards
@@ -37,7 +37,7 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   // ---------------------------------------------------------------------------
-  // Persist — called after every mutation
+  // Persist - called after every mutation
   // ---------------------------------------------------------------------------
   function persist() {
     if (!import.meta.client) return

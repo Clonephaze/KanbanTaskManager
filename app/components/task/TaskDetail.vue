@@ -86,14 +86,18 @@ const columnNames = computed(() => boardStore.activeBoard?.columns.map(c => c.na
 // Due date helpers
 const dueDateClass = computed(() => {
   if (!task.value.dueDate) return ''
-  const diff = Math.ceil((new Date(task.value.dueDate).getTime() - Date.now()) / 86400000)
+  const diff = Math.ceil((() => {
+    const parts = task.value.dueDate!.split('-')
+    return new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10)).getTime() - Date.now()
+  })() / 86400000)
   if (diff < 0) return 'task-detail__due--overdue'
   if (diff <= 2) return 'task-detail__due--soon'
   return 'task-detail__due--ok'
 })
 const formattedDueDate = computed(() => {
   if (!task.value.dueDate) return ''
-  return new Date(task.value.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  const parts = task.value.dueDate!.split('-')
+  return new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 })
 
 // Confetti when all subtasks complete

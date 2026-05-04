@@ -1,12 +1,12 @@
 // =============================================================================
 // TYPOGRAPHY
-// Font: Plus Jakarta Sans (Google Fonts) — weights 500 (Medium) and 700 (Bold)
-// Use the @mixin type($variant) in all components — never set raw font values.
+// Font: Plus Jakarta Sans (Google Fonts) - weights 500 (Medium) and 700 (Bold)
+// Use the @mixin type($variant) in all components - never set raw font values.
 // =============================================================================
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&display=swap');
 
-// Type scale mixin — maps variant names to Figma design system values
+// Type scale mixin - maps variant names to Figma design system values
 @mixin type($variant) {
   font-family: 'Plus Jakarta Sans', sans-serif;
 
