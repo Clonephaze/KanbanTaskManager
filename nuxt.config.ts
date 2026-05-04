@@ -7,6 +7,11 @@ export default defineNuxtConfig({
   // Falls back to '/' for local dev.
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? '/',
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/logo-mobile.svg' },
+      ],
+    },
   },
 
   modules: [

@@ -55,10 +55,10 @@ export const useBoardStore = defineStore('board', () => {
     persist()
   }
 
-  function addBoard(name: string, columnNames: string[], accentColor?: string) {
+  function addBoard(name: string, columnNames: string[], accentColor?: string, wipLimits?: number[]) {
     const newBoard: Board = {
       name,
-      columns: columnNames.filter(n => n.trim()).map(n => ({ name: n, tasks: [] })),
+      columns: columnNames.filter(n => n.trim()).map((n, i) => ({ name: n, tasks: [], wipLimit: wipLimits?.[i] ?? 0 })),
       accentColor,
     }
     boards.value.push(newBoard)
@@ -66,7 +66,7 @@ export const useBoardStore = defineStore('board', () => {
     persist()
   }
 
-  function updateBoard(name: string, columnNames: string[], accentColor?: string) {
+  function updateBoard(name: string, columnNames: string[], accentColor?: string, wipLimits?: number[]) {
     const board = activeBoard.value
     if (!board) return
 
@@ -76,9 +76,10 @@ export const useBoardStore = defineStore('board', () => {
     // Preserve existing tasks when column names match; drop removed columns
     const updatedColumns: Column[] = columnNames
       .filter(n => n.trim())
-      .map(n => {
+      .map((n, i) => {
         const existing = board.columns.find(c => c.name === n)
-        return existing ?? { name: n, tasks: [] }
+        const wip = wipLimits?.[i] ?? existing?.wipLimit ?? 0
+        return existing ? { ...existing, wipLimit: wip } : { name: n, tasks: [], wipLimit: wip }
       })
 
     board.columns = updatedColumns

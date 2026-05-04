@@ -62,6 +62,10 @@ watch(
   padding: 32px;
   outline: none;
   flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    padding: 24px 16px;
+  }
 }
 
 // Transitions

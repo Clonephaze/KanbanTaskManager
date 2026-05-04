@@ -18,9 +18,17 @@
           <input
             v-model="col.value"
             type="text"
-            class="board-form__input"
+            class="board-form__input board-form__input--col-name"
             :class="{ 'board-form__input--error': col.error }"
             placeholder="e.g. Todo"
+          />
+          <input
+            v-model.number="col.wipLimit"
+            type="number"
+            min="0"
+            class="board-form__input board-form__input--wip"
+            placeholder="WIP"
+            title="Work-in-progress limit (0 = none)"
           />
           <button
             type="button"
@@ -79,16 +87,16 @@ const PRESET_COLORS = ['#635FC7', '#49C4E5', '#67E2AE', '#F0A030', '#EA5555', '#
 // Pre-populate in edit mode
 const formName = ref(isEdit.value ? (boardStore.activeBoard?.name ?? '') : '')
 const formAccentColor = ref(isEdit.value ? (boardStore.activeBoard?.accentColor ?? '#635FC7') : '#635FC7')
-const columnInputs = ref<{ value: string; error: boolean }[]>(
+const columnInputs = ref<{ value: string; error: boolean; wipLimit: number }[]>(
   isEdit.value && boardStore.activeBoard
-    ? boardStore.activeBoard.columns.map(c => ({ value: c.name, error: false }))
-    : [{ value: '', error: false }],
+    ? boardStore.activeBoard.columns.map(c => ({ value: c.name, error: false, wipLimit: c.wipLimit ?? 0 }))
+    : [{ value: '', error: false, wipLimit: 0 }],
 )
 
 const nameError = ref('')
 
 function addColumn() {
-  columnInputs.value.push({ value: '', error: false })
+  columnInputs.value.push({ value: '', error: false, wipLimit: 0 })
 }
 
 function removeColumn(i: number) {
@@ -105,11 +113,12 @@ function onSubmit() {
   if (nameError.value || columnInputs.value.some(c => c.error)) return
 
   const columnNames = columnInputs.value.filter(c => c.value.trim()).map(c => c.value.trim())
+  const wipLimits = columnInputs.value.filter(c => c.value.trim()).map(c => c.wipLimit ?? 0)
 
   if (isEdit.value) {
-    boardStore.updateBoard(formName.value.trim(), columnNames, formAccentColor.value)
+    boardStore.updateBoard(formName.value.trim(), columnNames, formAccentColor.value, wipLimits)
   } else {
-    boardStore.addBoard(formName.value.trim(), columnNames, formAccentColor.value)
+    boardStore.addBoard(formName.value.trim(), columnNames, formAccentColor.value, wipLimits)
   }
 
   uiStore.closeModal()
@@ -153,7 +162,7 @@ function onSubmit() {
   &__list-item {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
   }
 
   &__input {
@@ -177,6 +186,22 @@ function onSubmit() {
 
     &--error {
       border-color: var(--color-danger);
+    }
+
+    &--col-name {
+      flex: 1;
+    }
+
+    &--wip {
+      flex: 0 0 auto;
+      width: calc(3ch + 12px);
+      min-width: 40px;
+      padding: 8px 6px;
+      text-align: center;
+      // Hide number spinner arrows
+      appearance: textfield;
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button { display: none; }
     }
   }
 

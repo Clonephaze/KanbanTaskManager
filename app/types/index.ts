@@ -23,11 +23,6 @@ export interface Column {
   wipLimit?: number    // max tasks allowed (0 = no limit)
 }
 
-export interface Column {
-  name: string
-  tasks: Task[]
-}
-
 export interface Board {
   name: string
   columns: Column[]
