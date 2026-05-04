@@ -24,11 +24,11 @@
     </header>
 
     <!-- Priority + Due Date badges -->
-    <div v-if="task.priority || task.dueDate" class="task-detail__meta">
+    <div v-if="task.priority || task.due_date" class="task-detail__meta">
       <span v-if="task.priority" class="task-detail__priority" :class="`task-detail__priority--${task.priority}`">
         {{ task.priority }}
       </span>
-      <span v-if="task.dueDate" class="task-detail__due" :class="dueDateClass">
+      <span v-if="task.due_date" class="task-detail__due" :class="dueDateClass">
         Due {{ formattedDueDate }}
       </span>
     </div>
@@ -44,7 +44,7 @@
       <ul class="task-detail__subtask-list">
         <li v-for="subtask in task.subtasks" :key="subtask.title">
           <BaseCheckbox
-            :model-value="subtask.isCompleted"
+            :model-value="subtask.is_completed"
             :label="subtask.title"
             @update:model-value="onToggleSubtask(subtask.title)"
           />
@@ -80,14 +80,14 @@ const task = computed(() => payload.value!.task)
 const currentColumnName = ref(payload.value?.columnName ?? '')
 const currentStatus = ref(task.value?.status ?? '')
 
-const completedCount = computed(() => task.value.subtasks.filter(s => s.isCompleted).length)
+const completedCount = computed(() => task.value.subtasks.filter(s => s.is_completed).length)
 const columnNames = computed(() => boardStore.activeBoard?.columns.map(c => c.name) ?? [])
 
 // Due date helpers
 const dueDateClass = computed(() => {
-  if (!task.value.dueDate) return ''
+  if (!task.value.due_date) return ''
   const diff = Math.ceil((() => {
-    const parts = task.value.dueDate!.split('-')
+    const parts = task.value.due_date!.split('-')
     return new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10)).getTime() - Date.now()
   })() / 86400000)
   if (diff < 0) return 'task-detail__due--overdue'
@@ -95,8 +95,8 @@ const dueDateClass = computed(() => {
   return 'task-detail__due--ok'
 })
 const formattedDueDate = computed(() => {
-  if (!task.value.dueDate) return ''
-  const parts = task.value.dueDate!.split('-')
+  if (!task.value.due_date) return ''
+  const parts = task.value.due_date!.split('-')
   return new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 })
 

@@ -64,7 +64,7 @@ const boardStore = useBoardStore()
 const uiStore = useUiStore()
 
 const dotColor = computed(() => {
-  const accent = boardStore.activeBoard?.accentColor
+  const accent = boardStore.activeBoard?.accent_color
   if (accent) return accentVariant(accent, props.columnIndex)
   return COLUMN_COLORS[props.columnIndex % COLUMN_COLORS.length] ?? '#49C4E5'
 })
@@ -89,19 +89,16 @@ const visibleTasks = computed(() => {
 })
 
 // WIP limit warning
-const wipLimit = computed(() => props.column.wipLimit ?? 0)
+const wipLimit = computed(() => props.column.wip_limit ?? 0)
 const isOverWip = computed(() => wipLimit.value > 0 && tasks.value.length > wipLimit.value)
 
-function onDragEnd() {
+async function onDragEnd() {
   // After any drag (reorder or cross-column move), sync back to store.
-  // vue-draggable-plus mutates the tasks array and updates status via the
-  // group binding - we reflect that back to the store here.
   const col = boardStore.activeBoard?.columns[props.columnIndex]
   if (!col) return
   col.tasks = tasks.value
   col.tasks.forEach(t => { t.status = props.column.name })
-  // Trigger persist
-  boardStore.setActiveBoard(boardStore.activeBoardIndex)
+  await boardStore.syncColumnTasks(col.id, tasks.value.map(t => t.id))
 }
 </script>
 

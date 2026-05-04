@@ -5,11 +5,11 @@
         <p class="mobile-picker__heading">ALL BOARDS ({{ boardStore.boards.length }})</p>
 
         <ul class="mobile-picker__list">
-          <li v-for="(board, i) in boardStore.boards" :key="board.name">
+          <li v-for="board in boardStore.boards" :key="board.id">
             <button
-              :class="['mobile-picker__item', { 'mobile-picker__item--active': i === boardStore.activeBoardIndex }]"
-              :style="i === boardStore.activeBoardIndex && board.accentColor ? { '--board-accent': board.accentColor } : {}"
-              @click="selectBoard(i)"
+              :class="['mobile-picker__item', { 'mobile-picker__item--active': board.id === boardStore.activeBoardId }]"
+              :style="board.id === boardStore.activeBoardId && board.accent_color ? { '--board-accent': board.accent_color } : {}"
+              @click="selectBoard(board.id)"
             >
               <img :src="boardIcon" alt="" aria-hidden="true" width="16" height="16" />
               {{ board.name }}
@@ -51,8 +51,8 @@ import moonIcon from '~/assets/icons/icon-dark-theme.svg'
 const boardStore = useBoardStore()
 const uiStore = useUiStore()
 
-function selectBoard(i: number) {
-  boardStore.setActiveBoard(i)
+function selectBoard(id: string) {
+  boardStore.setActiveBoard(id)
   uiStore.closeMobileBoardPicker()
 }
 

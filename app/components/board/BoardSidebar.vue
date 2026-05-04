@@ -4,11 +4,11 @@
     <nav class="sidebar__nav">
       <p class="sidebar__all-boards">All Boards ({{ boardStore.boards.length }})</p>
       <ul class="sidebar__board-list">
-        <li v-for="(board, i) in boardStore.boards" :key="board.name">
+        <li v-for="board in boardStore.boards" :key="board.id">
           <button
-            :class="['sidebar__board-item', { 'sidebar__board-item--active': i === boardStore.activeBoardIndex }]"
-            :style="i === boardStore.activeBoardIndex && board.accentColor ? { '--board-accent': board.accentColor } : {}"
-            @click="boardStore.setActiveBoard(i)"
+            :class="['sidebar__board-item', { 'sidebar__board-item--active': board.id === boardStore.activeBoardId }]"
+            :style="board.id === boardStore.activeBoardId && board.accent_color ? { '--board-accent': board.accent_color } : {}"
+            @click="boardStore.setActiveBoard(board.id)"
           >
             <img :src="boardIcon" alt="" aria-hidden="true" width="16" height="16" />
             <span>{{ board.name }}</span>

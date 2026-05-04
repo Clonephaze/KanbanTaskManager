@@ -23,7 +23,7 @@
             placeholder="e.g. Todo"
           />
           <input
-            v-model.number="col.wipLimit"
+            v-model.number="col.wip_limit"
             type="number"
             min="0"
             class="board-form__input board-form__input--wip"
@@ -86,17 +86,17 @@ const PRESET_COLORS = ['#635FC7', '#49C4E5', '#67E2AE', '#F0A030', '#EA5555', '#
 
 // Pre-populate in edit mode
 const formName = ref(isEdit.value ? (boardStore.activeBoard?.name ?? '') : '')
-const formAccentColor = ref(isEdit.value ? (boardStore.activeBoard?.accentColor ?? '#635FC7') : '#635FC7')
-const columnInputs = ref<{ value: string; error: boolean; wipLimit: number }[]>(
+const formAccentColor = ref(isEdit.value ? (boardStore.activeBoard?.accent_color ?? '#635FC7') : '#635FC7')
+const columnInputs = ref<{ value: string; error: boolean; wip_limit: number }[]>(
   isEdit.value && boardStore.activeBoard
-    ? boardStore.activeBoard.columns.map(c => ({ value: c.name, error: false, wipLimit: c.wipLimit ?? 0 }))
-    : [{ value: '', error: false, wipLimit: 0 }],
+    ? boardStore.activeBoard.columns.map(c => ({ value: c.name, error: false, wip_limit: c.wip_limit ?? 0 }))
+    : [{ value: '', error: false, wip_limit: 0 }],
 )
 
 const nameError = ref('')
 
 function addColumn() {
-  columnInputs.value.push({ value: '', error: false, wipLimit: 0 })
+  columnInputs.value.push({ value: '', error: false, wip_limit: 0 })
 }
 
 function removeColumn(i: number) {
@@ -113,7 +113,7 @@ function onSubmit() {
   if (nameError.value || columnInputs.value.some(c => c.error)) return
 
   const columnNames = columnInputs.value.filter(c => c.value.trim()).map(c => c.value.trim())
-  const wipLimits = columnInputs.value.filter(c => c.value.trim()).map(c => c.wipLimit ?? 0)
+  const wipLimits = columnInputs.value.filter(c => c.value.trim()).map(c => c.wip_limit ?? 0)
 
   if (isEdit.value) {
     boardStore.updateBoard(formName.value.trim(), columnNames, formAccentColor.value, wipLimits)

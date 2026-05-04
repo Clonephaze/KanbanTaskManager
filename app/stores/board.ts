@@ -1,178 +1,280 @@
 import { defineStore } from 'pinia'
 import type { Board, Column, Task, Subtask } from '~/types'
-import seedData from '~/data/data.json'
-
-const STORAGE_KEY = 'kanban-boards'
+import type { Database } from '~/types/database'
 
 export const useBoardStore = defineStore('board', () => {
+  const supabase = useSupabaseClient<Database>()
+
   // ---------------------------------------------------------------------------
   // State
   // ---------------------------------------------------------------------------
   const boards = ref<Board[]>([])
-  const activeBoardIndex = ref(0)
+  const activeBoardId = ref<string | null>(null)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
   // ---------------------------------------------------------------------------
   // Computed
   // ---------------------------------------------------------------------------
-  const activeBoard = computed<Board | undefined>(() => boards.value[activeBoardIndex.value])
+  const activeBoard = computed<Board | undefined>(() =>
+    boards.value.find(b => b.id === activeBoardId.value),
+  )
 
   // ---------------------------------------------------------------------------
-  // Init - seed from localStorage, fall back to data.json
+  // Load all boards (+ nested columns/tasks/subtasks) for the current user
   // ---------------------------------------------------------------------------
-  function init() {
-    if (!import.meta.client) return
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as { boards: Board[]; activeBoardIndex: number }
-        boards.value = parsed.boards
-        activeBoardIndex.value = parsed.activeBoardIndex ?? 0
-        return
-      } catch {
-        // Corrupted data - fall through to seed
+  async function loadBoards() {
+    loading.value = true
+    error.value = null
+    try {
+      const { data, error: err } = await supabase
+        .from('boards')
+        .select(`
+          id, name, accent_color, position,
+          columns (
+            id, name, wip_limit, position,
+            tasks (
+              id, title, description, priority, due_date, position,
+              subtasks ( id, title, is_completed, position )
+            )
+          )
+        `)
+        .order('position', { ascending: true })
+        .order('position', { referencedTable: 'columns', ascending: true })
+        .order('position', { referencedTable: 'columns.tasks', ascending: true })
+        .order('position', { referencedTable: 'columns.tasks.subtasks', ascending: true })
+
+      if (err) throw err
+
+      boards.value = (data ?? []).map(b => ({
+        ...b,
+        accent_color: b.accent_color ?? undefined,
+        columns: (b.columns ?? []).map(c => ({
+          ...c,
+          tasks: (c.tasks ?? []).map(t => ({
+            ...t,
+            status: c.name,
+            priority: (t.priority as Task['priority']) ?? undefined,
+            due_date: t.due_date ?? undefined,
+            subtasks: (t.subtasks ?? []),
+          })),
+        })),
+      })) as Board[]
+
+      if (!activeBoardId.value && boards.value.length > 0) {
+        activeBoardId.value = boards.value[0]!.id
       }
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Failed to load boards'
+    } finally {
+      loading.value = false
     }
-    boards.value = (seedData as { boards: Board[] }).boards
-    activeBoardIndex.value = 0
-  }
-
-  // ---------------------------------------------------------------------------
-  // Persist - called after every mutation
-  // ---------------------------------------------------------------------------
-  function persist() {
-    if (!import.meta.client) return
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      boards: boards.value,
-      activeBoardIndex: activeBoardIndex.value,
-    }))
   }
 
   // ---------------------------------------------------------------------------
   // Board actions
   // ---------------------------------------------------------------------------
-  function setActiveBoard(index: number) {
-    activeBoardIndex.value = index
-    persist()
+  function setActiveBoard(id: string) {
+    activeBoardId.value = id
   }
 
-  function addBoard(name: string, columnNames: string[], accentColor?: string, wipLimits?: number[]) {
-    const newBoard: Board = {
-      name,
-      columns: columnNames.filter(n => n.trim()).map((n, i) => ({ name: n, tasks: [], wipLimit: wipLimits?.[i] ?? 0 })),
-      accentColor,
+  async function addBoard(name: string, columnNames: string[], accent_color?: string, wipLimits?: number[]) {
+    const position = boards.value.length
+    const { data: board, error: err } = await supabase
+      .from('boards')
+      .insert({ name, accent_color, position })
+      .select('id')
+      .single()
+
+    if (err || !board) { error.value = err?.message ?? 'Failed to create board'; return }
+
+    const cols = columnNames.filter(n => n.trim()).map((n, i) => ({
+      board_id: board.id,
+      name: n,
+      wip_limit: wipLimits?.[i] ?? 0,
+      position: i,
+    }))
+
+    if (cols.length) {
+      const { error: colErr } = await supabase.from('columns').insert(cols)
+      if (colErr) { error.value = colErr.message; return }
     }
-    boards.value.push(newBoard)
-    activeBoardIndex.value = boards.value.length - 1
-    persist()
+
+    await loadBoards()
+    activeBoardId.value = board.id
   }
 
-  function updateBoard(name: string, columnNames: string[], accentColor?: string, wipLimits?: number[]) {
+  async function updateBoard(name: string, columnNames: string[], accent_color?: string, wipLimits?: number[]) {
     const board = activeBoard.value
     if (!board) return
 
-    board.name = name
-    if (accentColor !== undefined) board.accentColor = accentColor
+    await supabase
+      .from('boards')
+      .update({ name, accent_color })
+      .eq('id', board.id)
 
-    // Preserve existing tasks when column names match; drop removed columns
-    const updatedColumns: Column[] = columnNames
-      .filter(n => n.trim())
-      .map((n, i) => {
-        const existing = board.columns.find(c => c.name === n)
-        const wip = wipLimits?.[i] ?? existing?.wipLimit ?? 0
-        return existing ? { ...existing, wipLimit: wip } : { name: n, tasks: [], wipLimit: wip }
-      })
+    const existing = board.columns
+    const incoming = columnNames.filter(n => n.trim())
 
-    board.columns = updatedColumns
-    persist()
+    const toDelete = existing.filter(c => !incoming.includes(c.name)).map(c => c.id)
+    if (toDelete.length) {
+      await supabase.from('columns').delete().in('id', toDelete)
+    }
+
+    const toInsert = incoming
+      .filter(n => !existing.find(c => c.name === n))
+      .map(n => ({ board_id: board.id, name: n, wip_limit: wipLimits?.[incoming.indexOf(n)] ?? 0, position: incoming.indexOf(n) }))
+
+    if (toInsert.length) {
+      await supabase.from('columns').insert(toInsert)
+    }
+
+    for (const col of existing) {
+      const idx = incoming.indexOf(col.name)
+      if (idx !== -1) {
+        await supabase.from('columns')
+          .update({ wip_limit: wipLimits?.[idx] ?? col.wip_limit, position: idx })
+          .eq('id', col.id)
+      }
+    }
+
+    await loadBoards()
   }
 
-  function deleteBoard() {
-    boards.value.splice(activeBoardIndex.value, 1)
-    activeBoardIndex.value = Math.max(0, activeBoardIndex.value - 1)
-    persist()
+  async function deleteBoard() {
+    const board = activeBoard.value
+    if (!board) return
+    await supabase.from('boards').delete().eq('id', board.id)
+    await loadBoards()
+    activeBoardId.value = boards.value[0]?.id ?? null
   }
 
   // ---------------------------------------------------------------------------
   // Task actions
   // ---------------------------------------------------------------------------
-  function addTask(task: Omit<Task, 'subtasks'> & { subtasks: Subtask[] }) {
+  async function addTask(task: Omit<Task, 'id' | 'subtasks' | 'position'> & { subtasks: Omit<Subtask, 'id' | 'position'>[] }) {
     const board = activeBoard.value
     if (!board) return
     const column = board.columns.find(c => c.name === task.status)
     if (!column) return
-    column.tasks.push({ ...task })
-    persist()
+
+    const { data: inserted, error: err } = await supabase
+      .from('tasks')
+      .insert({
+        column_id: column.id,
+        title: task.title,
+        description: task.description,
+        priority: task.priority ?? null,
+        due_date: task.due_date ?? null,
+        position: column.tasks.length,
+      })
+      .select('id')
+      .single()
+
+    if (err || !inserted) { error.value = err?.message ?? 'Failed to add task'; return }
+
+    if (task.subtasks.length) {
+      await supabase.from('subtasks').insert(
+        task.subtasks.map((s, i) => ({ task_id: inserted.id, title: s.title, is_completed: false, position: i })),
+      )
+    }
+
+    await loadBoards()
   }
 
-  function updateTask(originalTitle: string, originalStatus: string, updated: Task) {
+  async function updateTask(originalTitle: string, originalStatus: string, updated: Task) {
     const board = activeBoard.value
     if (!board) return
 
-    // Remove from original column
-    const srcColumn = board.columns.find(c => c.name === originalStatus)
-    if (srcColumn) {
-      const idx = srcColumn.tasks.findIndex(t => t.title === originalTitle)
-      if (idx !== -1) srcColumn.tasks.splice(idx, 1)
+    const srcCol = board.columns.find(c => c.name === originalStatus)
+    const task = srcCol?.tasks.find(t => t.title === originalTitle)
+    if (!task) return
+
+    const destCol = board.columns.find(c => c.name === updated.status)
+    if (!destCol) return
+
+    await supabase.from('tasks').update({
+      title: updated.title,
+      description: updated.description,
+      priority: updated.priority ?? null,
+      due_date: updated.due_date ?? null,
+      column_id: destCol.id,
+    }).eq('id', task.id)
+
+    const existingSubtasks = task.subtasks
+    const incoming = updated.subtasks
+
+    const toDelete = existingSubtasks.filter(s => !incoming.find(i => i.title === s.title)).map(s => s.id)
+    if (toDelete.length) await supabase.from('subtasks').delete().in('id', toDelete)
+
+    const toInsert = incoming.filter(s => !existingSubtasks.find(e => e.title === s.title))
+    if (toInsert.length) {
+      await supabase.from('subtasks').insert(
+        toInsert.map((s, i) => ({ task_id: task.id, title: s.title, is_completed: s.is_completed, position: existingSubtasks.length + i })),
+      )
     }
 
-    // Add to destination column
-    const destColumn = board.columns.find(c => c.name === updated.status)
-    if (destColumn) {
-      destColumn.tasks.push({ ...updated })
-    }
-
-    persist()
+    await loadBoards()
   }
 
-  function deleteTask(columnName: string, taskTitle: string) {
+  async function deleteTask(columnName: string, taskTitle: string) {
     const board = activeBoard.value
     if (!board) return
     const column = board.columns.find(c => c.name === columnName)
-    if (!column) return
-    const idx = column.tasks.findIndex(t => t.title === taskTitle)
-    if (idx !== -1) column.tasks.splice(idx, 1)
-    persist()
+    const task = column?.tasks.find(t => t.title === taskTitle)
+    if (!task) return
+    await supabase.from('tasks').delete().eq('id', task.id)
+    await loadBoards()
   }
 
-  function moveTask(taskTitle: string, fromColumn: string, toColumn: string) {
+  async function moveTask(taskTitle: string, fromColumn: string, toColumn: string) {
     const board = activeBoard.value
     if (!board) return
-
     const src = board.columns.find(c => c.name === fromColumn)
     const dest = board.columns.find(c => c.name === toColumn)
-    if (!src || !dest) return
+    const task = src?.tasks.find(t => t.title === taskTitle)
+    if (!src || !dest || !task) return
 
-    const idx = src.tasks.findIndex(t => t.title === taskTitle)
-    if (idx === -1) return
+    await supabase.from('tasks').update({
+      column_id: dest.id,
+      position: dest.tasks.length,
+    }).eq('id', task.id)
 
-    const task = src.tasks.splice(idx, 1)[0]
-    if (!task) return
-    task.status = toColumn
-    dest.tasks.push(task)
-    persist()
+    await loadBoards()
   }
 
-  function toggleSubtask(columnName: string, taskTitle: string, subtaskTitle: string) {
+  async function toggleSubtask(columnName: string, taskTitle: string, subtaskTitle: string) {
     const board = activeBoard.value
     if (!board) return
     const column = board.columns.find(c => c.name === columnName)
-    if (!column) return
-    const task = column.tasks.find(t => t.title === taskTitle)
-    if (!task) return
-    const subtask = task.subtasks.find(s => s.title === subtaskTitle)
+    const task = column?.tasks.find(t => t.title === taskTitle)
+    const subtask = task?.subtasks.find(s => s.title === subtaskTitle)
     if (!subtask) return
-    subtask.isCompleted = !subtask.isCompleted
-    persist()
+
+    // Optimistic update for instant UI response
+    subtask.is_completed = !subtask.is_completed
+
+    await supabase.from('subtasks')
+      .update({ is_completed: subtask.is_completed })
+      .eq('id', subtask.id)
+  }
+
+  // Called by BoardColumn after drag-and-drop reorders tasks
+  async function syncColumnTasks(columnId: string, taskIds: string[]) {
+    await Promise.all(
+      taskIds.map((id, position) =>
+        supabase.from('tasks').update({ column_id: columnId, position }).eq('id', id),
+      ),
+    )
   }
 
   return {
-    // State
     boards,
-    activeBoardIndex,
-    // Computed
+    activeBoardId,
     activeBoard,
-    // Actions
-    init,
+    loading,
+    error,
+    loadBoards,
     setActiveBoard,
     addBoard,
     updateBoard,
@@ -182,5 +284,6 @@ export const useBoardStore = defineStore('board', () => {
     deleteTask,
     moveTask,
     toggleSubtask,
+    syncColumnTasks,
   }
 })

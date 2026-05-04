@@ -72,6 +72,8 @@ import { useBoardStore } from '~/stores/board'
 import { useKeyboardShortcuts } from '~/composables/useKeyboardShortcuts'
 import showSidebarIcon from '~/assets/icons/icon-show-sidebar.svg'
 
+definePageMeta({ middleware: 'auth' })
+
 const uiStore = useUiStore()
 const boardStore = useBoardStore()
 useKeyboardShortcuts()

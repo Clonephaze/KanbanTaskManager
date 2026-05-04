@@ -109,7 +109,7 @@
     <div v-if="boardStore.activeBoard && totalTasks > 0" class="app-header__progress" :title="`${completedTasks} of ${totalTasks} tasks complete`">
       <div
         class="app-header__progress-bar"
-        :style="{ width: progressPercent + '%', background: boardStore.activeBoard.accentColor ?? 'var(--color-primary)' }"
+        :style="{ width: progressPercent + '%', background: boardStore.activeBoard.accent_color ?? 'var(--color-primary)' }"
       />
     </div>
   </header>
@@ -148,7 +148,7 @@ const completedTasks = computed(() =>
       // A task is "done" if it's in the last column or all subtasks complete
       const cols = boardStore.activeBoard!.columns
       const isLastCol = cols[cols.length - 1]?.tasks.includes(t)
-      const allSubtasksDone = t.subtasks.length > 0 && t.subtasks.every(s => s.isCompleted)
+      const allSubtasksDone = t.subtasks.length > 0 && t.subtasks.every(s => s.is_completed)
       return isLastCol || allSubtasksDone
     }).length ?? 0
 )

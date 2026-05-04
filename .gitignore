@@ -20,3 +20,4 @@
 /.nuxt
 /.github/instructions
 /node_modules
+.env

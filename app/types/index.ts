@@ -1,32 +1,40 @@
 // Single source of truth for all data shapes.
-// These mirror data.json - import from here, never redefine inline.
+// These match the Supabase table columns exactly (snake_case).
 
 export interface Subtask {
+  id: string
   title: string
-  isCompleted: boolean
+  is_completed: boolean
+  position: number
 }
 
 export type Priority = 'low' | 'medium' | 'high' | 'urgent'
 
 export interface Task {
+  id: string
   title: string
   description: string
-  status: string       // Must match a Column.name within the same board
+  status: string         // Mirrors Column.name for the current column
   subtasks: Subtask[]
   priority?: Priority
-  dueDate?: string     // ISO date string e.g. '2025-06-30'
+  due_date?: string      // ISO date string e.g. '2025-06-30'
+  position: number
 }
 
 export interface Column {
+  id: string
   name: string
   tasks: Task[]
-  wipLimit?: number    // max tasks allowed (0 = no limit)
+  wip_limit: number
+  position: number
 }
 
 export interface Board {
+  id: string
   name: string
   columns: Column[]
-  accentColor?: string  // hex - drives column dots + active board highlight
+  accent_color?: string  // hex - drives column dots + active board highlight
+  position: number
 }
 
 // Modal types

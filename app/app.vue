@@ -11,13 +11,17 @@ import { useBoardStore } from '~/stores/board'
 
 const uiStore = useUiStore()
 const boardStore = useBoardStore()
+const user = useSupabaseUser()
 
-// Initialise client-side only (localStorage, data-theme attribute)
 onMounted(() => {
   uiStore.initTheme()
   uiStore.initLayout()
-  boardStore.init()
 })
+
+// Load boards whenever the user session is available
+watch(user, async (u) => {
+  if (u) await boardStore.loadBoards()
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>

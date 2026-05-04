@@ -3,21 +3,29 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  // GitHub Pages serves from /repo-name/ - pick up via env var set in the workflow.
-  // Falls back to '/' for local dev.
   app: {
-    baseURL: process.env.NUXT_APP_BASE_URL ?? '/',
     head: {
       link: [
-        { rel: 'icon', href: 'favicon.ico' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/logo-mobile.svg' },
+        { rel: 'icon', href: '/favicon.ico' },
       ],
     },
   },
 
   modules: [
+    '@nuxtjs/supabase',
     '@pinia/nuxt',
     '@vueuse/nuxt',
   ],
+
+  supabase: {
+    types: './app/types/database.ts',
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: [],
+    },
+  },
 
   // Register ui/ components without the 'Ui' path prefix so <BaseButton>,
   // <BaseInput>, etc. work. The generic '~/components' scan still handles

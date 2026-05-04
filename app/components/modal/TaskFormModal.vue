@@ -72,7 +72,7 @@ const formPriority = ref<Priority>(
         : 'medium',
 )
 const formDueDate = ref(
-    isEdit.value && payload.value?.task.dueDate ? payload.value.task.dueDate : '',
+    isEdit.value && payload.value?.task.due_date ? payload.value.task.due_date : '',
 )
 const subtaskInputs = ref<{ value: string; error: boolean }[]>(
     isEdit.value && payload.value
@@ -104,29 +104,36 @@ function onSubmit() {
 
     if (titleError.value || subtaskInputs.value.some(s => s.error)) return
 
-    const task: Task = {
-        title: formTitle.value.trim(),
-        description: formDescription.value.trim(),
-        status: formStatus.value,
-        priority: formPriority.value,
-        dueDate: formDueDate.value || undefined,
-        subtasks: subtaskInputs.value
-            .filter(s => s.value.trim())
-            .map(s => ({ title: s.value.trim(), isCompleted: false })),
-    }
+    const baseSubtasks = subtaskInputs.value
+        .filter(s => s.value.trim())
+        .map(s => ({ title: s.value.trim(), is_completed: false }))
 
     if (isEdit.value) {
-        // Preserve subtask completion state from original
         const original = payload.value!.task
-        task.subtasks = subtaskInputs.value
+        const updatedSubtasks = subtaskInputs.value
             .filter(s => s.value.trim())
             .map(s => {
                 const existing = original.subtasks.find(o => o.title === s.value.trim())
-                return { title: s.value.trim(), isCompleted: existing?.isCompleted ?? false }
+                return { title: s.value.trim(), is_completed: existing?.is_completed ?? false }
             })
-        boardStore.updateTask(originalTitle, originalStatus, task)
+        boardStore.updateTask(originalTitle, originalStatus, {
+            ...original,
+            title: formTitle.value.trim(),
+            description: formDescription.value.trim(),
+            status: formStatus.value,
+            priority: formPriority.value,
+            due_date: formDueDate.value || undefined,
+            subtasks: updatedSubtasks as typeof original.subtasks,
+        })
     } else {
-        boardStore.addTask(task)
+        boardStore.addTask({
+            title: formTitle.value.trim(),
+            description: formDescription.value.trim(),
+            status: formStatus.value,
+            priority: formPriority.value,
+            due_date: formDueDate.value || undefined,
+            subtasks: baseSubtasks,
+        })
     }
 
     uiStore.closeModal()

@@ -11,7 +11,7 @@
       <p class="task-card__subtasks">
         {{ completedCount }} of {{ task.subtasks.length }} subtasks
       </p>
-      <span v-if="task.dueDate" class="task-card__due" :class="dueDateClass">
+      <span v-if="task.due_date" class="task-card__due" :class="dueDateClass">
         {{ formattedDueDate }}
       </span>
     </div>
@@ -30,15 +30,15 @@ const props = defineProps<{
 const uiStore = useUiStore()
 
 const completedCount = computed(() =>
-  props.task.subtasks.filter(s => s.isCompleted).length
+  props.task.subtasks.filter(s => s.is_completed).length
 )
 
 // Due date helpers
 const dueDateClass = computed(() => {
-  if (!props.task.dueDate) return ''
+  if (!props.task.due_date) return ''
   const now = new Date()
   now.setHours(0, 0, 0, 0)
-  const parts = props.task.dueDate.split('-')
+  const parts = props.task.due_date.split('-')
   const due = new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10))
   const diffDays = Math.ceil((due.getTime() - now.getTime()) / 86_400_000)
   if (diffDays < 0) return 'task-card__due--overdue'
@@ -47,8 +47,8 @@ const dueDateClass = computed(() => {
 })
 
 const formattedDueDate = computed(() => {
-  if (!props.task.dueDate) return ''
-  const parts = props.task.dueDate.split('-')
+  if (!props.task.due_date) return ''
+  const parts = props.task.due_date.split('-')
   return new Date(parseInt(parts[0]!, 10), parseInt(parts[1]!, 10) - 1, parseInt(parts[2]!, 10)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 })
 
