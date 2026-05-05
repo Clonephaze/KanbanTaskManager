@@ -36,6 +36,12 @@
           </button>
           <img :src="moonIcon" alt="Dark mode" width="15" height="15" />
         </div>
+
+        <!-- Auth buttons (demo mode only) -->
+        <div v-if="boardStore.isDemoMode" class="mobile-picker__auth">
+          <button class="mobile-picker__auth-btn mobile-picker__auth-btn--primary" @click="onSignup">Create account</button>
+          <button class="mobile-picker__auth-btn" @click="onLogin">Log in</button>
+        </div>
       </div>
     </div>
   </Teleport>
@@ -59,6 +65,16 @@ function selectBoard(id: string) {
 function onCreateBoard() {
   uiStore.closeMobileBoardPicker()
   uiStore.openModal({ type: 'addBoard' })
+}
+
+function onSignup() {
+  uiStore.closeMobileBoardPicker()
+  navigateTo('/login?mode=signup')
+}
+
+function onLogin() {
+  uiStore.closeMobileBoardPicker()
+  navigateTo('/login')
 }
 </script>
 
@@ -190,6 +206,45 @@ function onCreateBoard() {
 
     [data-theme="light"] & {
       transform: translateX(20px);
+    }
+  }
+
+  &__auth {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--color-border);
+    margin-top: 8px;
+  }
+
+  &__auth-btn {
+    @include focus-ring;
+    @include type('heading-m');
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--color-border);
+    background: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    &--primary {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #ffffff;
+
+      &:hover {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+        color: #ffffff;
+      }
     }
   }
 }

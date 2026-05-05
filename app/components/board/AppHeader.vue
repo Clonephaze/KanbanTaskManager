@@ -36,7 +36,7 @@
       />
     </div>
 
-    <!-- Search bar (tablet+) -->
+    <!-- Search bar: inline at wide, icon trigger at compact -->
     <BoardSearchBar class="app-header__search" />
 
     <!-- Actions -->
@@ -197,9 +197,10 @@ function onDeleteBoard() {
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
+  z-index: 10;
 
   @include mobile-only {
-    height: 64px;
+    height: 64px;   // back to single row now search is a popover button
   }
 
   &__progress {
@@ -217,7 +218,6 @@ function onDeleteBoard() {
     }
   }
 
-  // Fixed-width logo pane - always visible, matches sidebar width exactly
   &__logo-pane {
     display: flex;
     align-items: center;
@@ -226,8 +226,8 @@ function onDeleteBoard() {
     padding: 0 32px;
     border-right: 1px solid var(--color-border);
 
-    @include desktop-up {
-      width: 300px;
+    @include wide-up {
+      width: 300px;   // match sidebar width at wide breakpoint
     }
 
     @include mobile-only {
@@ -241,8 +241,7 @@ function onDeleteBoard() {
     display: flex;
     align-items: center;
     gap: 8px;
-    // No longer flex:1 - search bar takes remaining space
-    flex-shrink: 0;
+    flex: 1;          // fills space at tablet/compact where search bar is icon-only
     min-width: 0;
     padding: 0 24px;
 
@@ -250,19 +249,12 @@ function onDeleteBoard() {
       cursor: pointer;
     }
 
-    @include mobile-only {
-      flex: 1; // on mobile, board name still takes all space (no search bar)
-      padding: 0 12px;
+    @include wide-up {
+      flex: 0 1 280px; // at wide, search bar is flex:1 — board name just shrinks if needed
     }
-  }
-
-  &__search {
-    flex: 1;
-    min-width: 0;
-    padding: 0 8px;
 
     @include mobile-only {
-      display: none;
+      padding: 0 12px;
     }
   }
 
@@ -290,17 +282,19 @@ function onDeleteBoard() {
   &__actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
     flex-shrink: 0;
-    padding-right: 24px;
+    padding-right: 16px;
 
-    @include mobile-only {
-      padding-right: 16px;
+    @include wide-up {
+      gap: 12px;
+      padding-right: 24px;
     }
   }
 
   &__add-desktop {
-    @include mobile-only {
+    // Only show the full text button when the layout has room
+    @media (max-width: #{1360px - 1px}) {
       display: none;
     }
   }
@@ -325,7 +319,8 @@ function onDeleteBoard() {
       cursor: not-allowed;
     }
 
-    @include mobile-only {
+    // Show whenever the text button is hidden
+    @media (max-width: #{1360px - 1px}) {
       display: flex;
     }
   }
@@ -348,7 +343,8 @@ function onDeleteBoard() {
   &__shortcuts {
     position: relative;
 
-    @include mobile-only {
+    // Only show when there's enough room
+    @media (max-width: #{1360px - 1px}) {
       display: none;
     }
   }

@@ -55,6 +55,7 @@
 // Responsive breakpoint helpers
 $bp-tablet:  768px;
 $bp-desktop: 1024px;
+$bp-wide:    1360px;  // threshold where full header layout fits without overflow
 
 @mixin mobile-only {
   @media (max-width: #{$bp-tablet - 1px}) {
@@ -70,6 +71,12 @@ $bp-desktop: 1024px;
 
 @mixin desktop-up {
   @media (min-width: #{$bp-desktop}) {
+    @content;
+  }
+}
+
+@mixin wide-up {
+  @media (min-width: #{$bp-wide}) {
     @content;
   }
 }

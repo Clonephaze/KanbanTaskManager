@@ -6,36 +6,51 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&display=swap');
 
-// Type scale mixin - maps variant names to Figma design system values
+// Type scale mixin - fluid typography using clamp()
+//
+// Interpolates linearly between a min and max font size over the viewport
+// range 375px → 1440px. Formula per variant:
+//   slope     = (max-px - min-px) / (1440 - 375) * 100  → as vw coefficient
+//   intercept = min-px - slope_as_px * (375/100)         → as rem (÷16)
+//   clamp(min-rem, calc(intercept-rem + slope-vw), max-rem)
+//
+// Line-heights are unitless ratios (original px / original font-size).
+// Letter-spacing is in rem.
 @mixin type($variant) {
   font-family: 'Plus Jakarta Sans', sans-serif;
 
   @if $variant == 'heading-xl' {
-    font-size: 24px;
+    // 18px → 24px
+    font-size: clamp(1.125rem, calc(0.993rem + 0.563vw), 1.5rem);
     font-weight: 700;
-    line-height: 30px;
+    line-height: 1.25;
   } @else if $variant == 'heading-l' {
-    font-size: 18px;
+    // 16px → 18px
+    font-size: clamp(1rem, calc(0.956rem + 0.188vw), 1.125rem);
     font-weight: 700;
-    line-height: 23px;
+    line-height: 1.278;
   } @else if $variant == 'heading-m' {
-    font-size: 15px;
+    // 13px → 15px
+    font-size: clamp(0.8125rem, calc(0.768rem + 0.188vw), 0.9375rem);
     font-weight: 700;
-    line-height: 19px;
+    line-height: 1.267;
   } @else if $variant == 'heading-s' {
-    font-size: 12px;
+    // 11px → 12px (label — kept tight intentionally)
+    font-size: clamp(0.6875rem, calc(0.665rem + 0.094vw), 0.75rem);
     font-weight: 700;
-    line-height: 15px;
-    letter-spacing: 2.4px;
+    line-height: 1.25;
+    letter-spacing: 0.15rem;
     text-transform: uppercase;
   } @else if $variant == 'body-l' {
-    font-size: 13px;
+    // 12px → 13px
+    font-size: clamp(0.75rem, calc(0.728rem + 0.094vw), 0.8125rem);
     font-weight: 500;
-    line-height: 23px;
+    line-height: 1.769;
   } @else if $variant == 'body-m' {
-    font-size: 12px;
+    // 11px → 12px
+    font-size: clamp(0.6875rem, calc(0.665rem + 0.094vw), 0.75rem);
     font-weight: 700;
-    line-height: 15px;
+    line-height: 1.25;
   } @else {
     @warn 'Unknown type variant: #{$variant}';
   }

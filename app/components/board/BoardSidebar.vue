@@ -88,7 +88,7 @@ const uiStore = useUiStore()
     display: none;
   }
 
-  @include desktop-up {
+  @include wide-up {
     width: 300px;
   }
 
@@ -179,11 +179,8 @@ const uiStore = useUiStore()
 
   &__auth-btns {
     display: flex;
+    flex-direction: column;  // always stack vertically — 260px isn't wide enough for two side-by-side
     gap: 8px;
-
-    .base-button {
-      flex: 1;
-    }
   }
 
   &__footer {
