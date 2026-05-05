@@ -37,7 +37,7 @@ Users are able to:
 ### Links
 
 - Solution URL: [Github](https://github.com/Clonephaze/KanbanTaskManager)
-- Live Site URL: [Github pages](https://clonephaze.github.io/KanbanTaskManager/)
+- Live Site URL: [Github pages](https://kanbancc.vercel.app/)
 
 ## My process
 
