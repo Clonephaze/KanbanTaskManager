@@ -18,9 +18,10 @@ onMounted(() => {
   uiStore.initLayout()
 })
 
-// Load boards whenever the user session is available
+// Load boards when authenticated; load demo data when not
 watch(user, async (u) => {
   if (u) await boardStore.loadBoards()
+  else boardStore.loadDemoBoards()
 }, { immediate: true })
 </script>
 

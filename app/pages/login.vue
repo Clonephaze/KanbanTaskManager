@@ -67,8 +67,9 @@ import logoDark from '~/assets/icons/logo-dark.svg'
 definePageMeta({ layout: false })
 
 const supabase = useSupabaseClient()
+const route = useRoute()
 
-const isLogin = ref(true)
+const isLogin = ref(route.query.mode !== 'signup')
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -98,9 +99,6 @@ async function onSubmit() {
     const { error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
-      options: {
-        emailRedirectTo: `${window.location.origin}/confirm`,
-      },
     })
     pending.value = false
     if (error) { authError.value = error.message; return }

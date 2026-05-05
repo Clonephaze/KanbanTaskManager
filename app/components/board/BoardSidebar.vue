@@ -25,6 +25,15 @@
 
     <!-- Bottom controls -->
     <div class="sidebar__footer">
+      <!-- Auth buttons (demo mode only) -->
+      <div v-if="boardStore.isDemoMode" class="sidebar__auth">
+        <p class="sidebar__auth-label">You're in demo mode</p>
+        <div class="sidebar__auth-btns">
+          <BaseButton variant="primary-s" @click="navigateTo('/login?mode=signup')">Create account</BaseButton>
+          <BaseButton variant="secondary" @click="navigateTo('/login')">Log in</BaseButton>
+        </div>
+      </div>
+
       <!-- Theme toggle -->
       <div class="sidebar__theme-toggle">
         <img :src="moonIcon" alt="Dark mode" width="15" height="15" />
@@ -152,6 +161,28 @@ const uiStore = useUiStore()
       &:hover {
         background-color: var(--color-btn-secondary-bg);
       }
+    }
+  }
+
+  &__auth {
+    padding: 12px 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__auth-label {
+    @include type('body-m');
+    color: var(--color-text-secondary);
+    text-align: center;
+  }
+
+  &__auth-btns {
+    display: flex;
+    gap: 8px;
+
+    .base-button {
+      flex: 1;
     }
   }
 

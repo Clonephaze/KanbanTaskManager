@@ -1,6 +1,2 @@
-export default defineNuxtRouteMiddleware(() => {
-  const user = useSupabaseUser()
-  if (!user.value) {
-    return navigateTo('/login')
-  }
-})
+// Auth middleware — no longer used as index page now supports demo mode
+export default defineNuxtRouteMiddleware(() => {})

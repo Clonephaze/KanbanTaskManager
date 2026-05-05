@@ -1,7 +1,15 @@
 -- =============================================================================
 -- Kanban Task Manager — Supabase Schema
 -- Run this in the Supabase SQL editor to set up your database.
+-- Safe to re-run: teardown drops everything first.
 -- =============================================================================
+
+-- ── Teardown (safe re-run) ────────────────────────────────────────────────────
+
+drop table if exists public.subtasks cascade;
+drop table if exists public.tasks    cascade;
+drop table if exists public.columns  cascade;
+drop table if exists public.boards   cascade;
 
 -- ── Tables ────────────────────────────────────────────────────────────────────
 
@@ -77,3 +85,14 @@ create policy "subtasks: owner full access"
   on public.subtasks for all
   using  (exists (select 1 from public.tasks t join public.columns c on c.id = t.column_id join public.boards b on b.id = c.board_id where t.id = subtasks.task_id and b.user_id = auth.uid()))
   with check (exists (select 1 from public.tasks t join public.columns c on c.id = t.column_id join public.boards b on b.id = c.board_id where t.id = subtasks.task_id and b.user_id = auth.uid()));
+
+-- ── Role grants ───────────────────────────────────────────────────────────────
+-- RLS alone is not enough; the authenticated role must also have table-level
+-- permissions granted at the PostgreSQL layer.
+
+grant usage on schema public to anon, authenticated;
+
+grant all on public.boards   to anon, authenticated;
+grant all on public.columns  to anon, authenticated;
+grant all on public.tasks    to anon, authenticated;
+grant all on public.subtasks to anon, authenticated;
