@@ -13,7 +13,8 @@ export const useBoardStore = defineStore('board', () => {
   // ---------------------------------------------------------------------------
   const boards = ref<Board[]>([])
   const activeBoardId = ref<string | null>(null)
-  const loading = ref(false)
+  const loading = ref(false)   // full board fetch
+  const saving = ref(false)    // any mutation in flight
   const error = ref<string | null>(null)
 
   // ---------------------------------------------------------------------------
@@ -22,6 +23,13 @@ export const useBoardStore = defineStore('board', () => {
   const activeBoard = computed<Board | undefined>(() =>
     boards.value.find(b => b.id === activeBoardId.value),
   )
+
+  // Wraps any async Supabase mutation with saving state
+  async function withSaving<T>(fn: () => Promise<T>): Promise<T> {
+    saving.value = true
+    try { return await fn() }
+    finally { saving.value = false }
+  }
 
   // ---------------------------------------------------------------------------
   // Load all boards (+ nested columns/tasks/subtasks) for the current user
@@ -146,33 +154,34 @@ export const useBoardStore = defineStore('board', () => {
       return
     }
 
-    const user_id = user.value?.id ?? user.value?.sub
-    if (!user_id) { error.value = 'Not authenticated'; return }
+    await withSaving(async () => {
+      const user_id = user.value?.id ?? user.value?.sub
+      if (!user_id) { error.value = 'Not authenticated'; return }
 
-    const position = boards.value.length
-    const { data: board, error: err } = await supabase
-      .from('boards')
-      .insert({ name, accent_color, position, user_id })
-      .select('id')
-      .single()
+      const position = boards.value.length
+      const { data: board, error: err } = await supabase
+        .from('boards')
+        .insert({ name, accent_color, position, user_id })
+        .select('id')
+        .single()
 
-    if (err || !board) { error.value = err?.message ?? 'Failed to create board'; return }
+      if (err || !board) { error.value = err?.message ?? 'Failed to create board'; return }
 
-    const cols = columnNames.filter(n => n.trim()).map((n, i) => ({
-      board_id: board.id,
-      name: n,
-      wip_limit: wipLimits?.[i] ?? 0,
-      position: i,
-    }))
+      const cols = columnNames.filter(n => n.trim()).map((n, i) => ({
+        board_id: board.id,
+        name: n,
+        wip_limit: wipLimits?.[i] ?? 0,
+        position: i,
+      }))
 
-    if (cols.length) {
-      const { error: colErr } = await supabase.from('columns').insert(cols)
-      if (colErr) { error.value = colErr.message; return }
-    }
+      if (cols.length) {
+        const { error: colErr } = await supabase.from('columns').insert(cols)
+        if (colErr) { error.value = colErr.message; return }
+      }
 
-    await loadBoards()
-    activeBoardId.value = board.id
-    console.log('[addBoard] done, activeBoardId:', board.id)
+      await loadBoards()
+      activeBoardId.value = board.id
+    })
   }
 
   async function updateBoard(name: string, columnNames: string[], accent_color?: string, wipLimits?: number[]) {
@@ -192,37 +201,39 @@ export const useBoardStore = defineStore('board', () => {
       return
     }
 
-    await supabase
-      .from('boards')
-      .update({ name, accent_color })
-      .eq('id', board.id)
+    await withSaving(async () => {
+      await supabase
+        .from('boards')
+        .update({ name, accent_color })
+        .eq('id', board.id)
 
-    const existing = board.columns
-    const incoming = columnNames.filter(n => n.trim())
+      const existing = board.columns
+      const incoming = columnNames.filter(n => n.trim())
 
-    const toDelete = existing.filter(c => !incoming.includes(c.name)).map(c => c.id)
-    if (toDelete.length) {
-      await supabase.from('columns').delete().in('id', toDelete)
-    }
-
-    const toInsert = incoming
-      .filter(n => !existing.find(c => c.name === n))
-      .map(n => ({ board_id: board.id, name: n, wip_limit: wipLimits?.[incoming.indexOf(n)] ?? 0, position: incoming.indexOf(n) }))
-
-    if (toInsert.length) {
-      await supabase.from('columns').insert(toInsert)
-    }
-
-    for (const col of existing) {
-      const idx = incoming.indexOf(col.name)
-      if (idx !== -1) {
-        await supabase.from('columns')
-          .update({ wip_limit: wipLimits?.[idx] ?? col.wip_limit, position: idx })
-          .eq('id', col.id)
+      const toDelete = existing.filter(c => !incoming.includes(c.name)).map(c => c.id)
+      if (toDelete.length) {
+        await supabase.from('columns').delete().in('id', toDelete)
       }
-    }
 
-    await loadBoards()
+      const toInsert = incoming
+        .filter(n => !existing.find(c => c.name === n))
+        .map(n => ({ board_id: board.id, name: n, wip_limit: wipLimits?.[incoming.indexOf(n)] ?? 0, position: incoming.indexOf(n) }))
+
+      if (toInsert.length) {
+        await supabase.from('columns').insert(toInsert)
+      }
+
+      for (const col of existing) {
+        const idx = incoming.indexOf(col.name)
+        if (idx !== -1) {
+          await supabase.from('columns')
+            .update({ wip_limit: wipLimits?.[idx] ?? col.wip_limit, position: idx })
+            .eq('id', col.id)
+        }
+      }
+
+      await loadBoards()
+    })
   }
 
   async function deleteBoard() {
@@ -235,9 +246,11 @@ export const useBoardStore = defineStore('board', () => {
       return
     }
 
-    await supabase.from('boards').delete().eq('id', board.id)
-    await loadBoards()
-    activeBoardId.value = boards.value[0]?.id ?? null
+    await withSaving(async () => {
+      await supabase.from('boards').delete().eq('id', board.id)
+      await loadBoards()
+      activeBoardId.value = boards.value[0]?.id ?? null
+    })
   }
 
   // ---------------------------------------------------------------------------
@@ -268,28 +281,30 @@ export const useBoardStore = defineStore('board', () => {
       return
     }
 
-    const { data: inserted, error: err } = await supabase
-      .from('tasks')
-      .insert({
-        column_id: column.id,
-        title: task.title,
-        description: task.description,
-        priority: task.priority ?? null,
-        due_date: task.due_date ?? null,
-        position: column.tasks.length,
-      })
-      .select('id')
-      .single()
+    await withSaving(async () => {
+      const { data: inserted, error: err } = await supabase
+        .from('tasks')
+        .insert({
+          column_id: column.id,
+          title: task.title,
+          description: task.description,
+          priority: task.priority ?? null,
+          due_date: task.due_date ?? null,
+          position: column.tasks.length,
+        })
+        .select('id')
+        .single()
 
-    if (err || !inserted) { error.value = err?.message ?? 'Failed to add task'; return }
+      if (err || !inserted) { error.value = err?.message ?? 'Failed to add task'; return }
 
-    if (task.subtasks.length) {
-      await supabase.from('subtasks').insert(
-        task.subtasks.map((s, i) => ({ task_id: inserted.id, title: s.title, is_completed: false, position: i })),
-      )
-    }
+      if (task.subtasks.length) {
+        await supabase.from('subtasks').insert(
+          task.subtasks.map((s, i) => ({ task_id: inserted.id, title: s.title, is_completed: false, position: i })),
+        )
+      }
 
-    await loadBoards()
+      await loadBoards()
+    })
   }
 
   async function updateTask(originalTitle: string, originalStatus: string, updated: Task) {
@@ -313,28 +328,30 @@ export const useBoardStore = defineStore('board', () => {
       return
     }
 
-    await supabase.from('tasks').update({
-      title: updated.title,
-      description: updated.description,
-      priority: updated.priority ?? null,
-      due_date: updated.due_date ?? null,
-      column_id: destCol.id,
-    }).eq('id', task.id)
+    await withSaving(async () => {
+      await supabase.from('tasks').update({
+        title: updated.title,
+        description: updated.description,
+        priority: updated.priority ?? null,
+        due_date: updated.due_date ?? null,
+        column_id: destCol.id,
+      }).eq('id', task.id)
 
-    const existingSubtasks = task.subtasks
-    const incoming = updated.subtasks
+      const existingSubtasks = task.subtasks
+      const incoming = updated.subtasks
 
-    const toDelete = existingSubtasks.filter(s => !incoming.find(i => i.title === s.title)).map(s => s.id)
-    if (toDelete.length) await supabase.from('subtasks').delete().in('id', toDelete)
+      const toDelete = existingSubtasks.filter(s => !incoming.find(i => i.title === s.title)).map(s => s.id)
+      if (toDelete.length) await supabase.from('subtasks').delete().in('id', toDelete)
 
-    const toInsert = incoming.filter(s => !existingSubtasks.find(e => e.title === s.title))
-    if (toInsert.length) {
-      await supabase.from('subtasks').insert(
-        toInsert.map((s, i) => ({ task_id: task.id, title: s.title, is_completed: s.is_completed, position: existingSubtasks.length + i })),
-      )
-    }
+      const toInsert = incoming.filter(s => !existingSubtasks.find(e => e.title === s.title))
+      if (toInsert.length) {
+        await supabase.from('subtasks').insert(
+          toInsert.map((s, i) => ({ task_id: task.id, title: s.title, is_completed: s.is_completed, position: existingSubtasks.length + i })),
+        )
+      }
 
-    await loadBoards()
+      await loadBoards()
+    })
   }
 
   async function deleteTask(columnName: string, taskTitle: string) {
@@ -349,8 +366,10 @@ export const useBoardStore = defineStore('board', () => {
       return
     }
 
-    await supabase.from('tasks').delete().eq('id', task.id)
-    await loadBoards()
+    await withSaving(async () => {
+      await supabase.from('tasks').delete().eq('id', task.id)
+      await loadBoards()
+    })
   }
 
   async function moveTask(taskTitle: string, fromColumn: string, toColumn: string) {
@@ -367,12 +386,14 @@ export const useBoardStore = defineStore('board', () => {
       return
     }
 
-    await supabase.from('tasks').update({
-      column_id: dest.id,
-      position: dest.tasks.length,
-    }).eq('id', task.id)
+    await withSaving(async () => {
+      await supabase.from('tasks').update({
+        column_id: dest.id,
+        position: dest.tasks.length,
+      }).eq('id', task.id)
 
-    await loadBoards()
+      await loadBoards()
+    })
   }
 
   async function toggleSubtask(columnName: string, taskTitle: string, subtaskTitle: string) {
@@ -420,6 +441,7 @@ export const useBoardStore = defineStore('board', () => {
     activeBoardId,
     activeBoard,
     loading,
+    saving,
     error,
     isDemoMode,
     loadBoards,

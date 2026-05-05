@@ -1,5 +1,8 @@
 <template>
   <header class="app-header">
+    <!-- Top progress bar -->
+    <div class="app-header__progress" :class="{ 'app-header__progress--active': boardStore.loading || boardStore.saving }" aria-hidden="true" />
+
     <!-- Logo pane: fixed width on tablet+, always visible. Mobile: logo-mobile only -->
     <div class="app-header__logo-pane">
       <picture>
@@ -197,6 +200,21 @@ function onDeleteBoard() {
 
   @include mobile-only {
     height: 64px;
+  }
+
+  &__progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background-color: var(--color-primary);
+    transition: none;
+    z-index: 100;
+
+    &--active {
+      animation: progress-indeterminate 1.4s ease-in-out infinite;
+    }
   }
 
   // Fixed-width logo pane - always visible, matches sidebar width exactly
@@ -449,23 +467,6 @@ function onDeleteBoard() {
   }
 }
 
-.app-header__progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--color-border);
-  overflow: hidden;
-
-  &-bar {
-    height: 100%;
-    background: var(--color-primary);
-    transition: width 0.4s ease;
-    border-radius: 0 2px 2px 0;
-  }
-}
-
 // Dropdown transition (shared pattern)
 .dropdown-enter-active,
 .dropdown-leave-active {
@@ -475,5 +476,11 @@ function onDeleteBoard() {
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+
+@keyframes progress-indeterminate {
+  0%   { left: -40%; width: 40%; }
+  60%  { left: 100%; width: 40%; }
+  100% { left: 100%; width: 40%; }
 }
 </style>
