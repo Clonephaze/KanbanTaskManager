@@ -7,7 +7,10 @@
     "dev": "nuxt dev --host",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.6",
@@ -22,6 +25,12 @@
     "vue-router": "^5.0.6"
   },
   "devDependencies": {
-    "@types/canvas-confetti": "^1.9.0"
+    "@nuxt/test-utils": "^4.0.3",
+    "@pinia/testing": "^1.0.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "@vitest/coverage-v8": "^4.1.5",
+    "@vue/test-utils": "^2.4.10",
+    "happy-dom": "^20.9.0",
+    "vitest": "^4.1.5"
   }
 }
